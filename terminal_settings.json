@@ -1,0 +1,87 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions": 
+    [
+        {
+            "command": 
+            {
+                "action": "copy",
+                "singleLine": false
+            },
+            "keys": "ctrl+c"
+        },
+        {
+            "command": "paste",
+            "keys": "ctrl+v"
+        },
+        {
+            "command": "find",
+            "keys": "ctrl+shift+f"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "auto",
+                "splitMode": "duplicate"
+            },
+            "keys": "alt+shift+d"
+        }
+    ],
+    "copyFormatting": "none",
+    "copyOnSelect": false,
+    "defaultProfile": "{07b52e3e-de2c-5db4-bd2d-ba144ed6c273}", //make sure this is similar to "guid" because the ID changes on different distribution.
+    "profiles": 
+    {
+        "defaults": {},
+        "list": 
+        [
+            {
+                "bellStyle": "taskbar",
+                "colorScheme": "msrhmn_custom",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 11
+                },
+                "guid": "{07b52e3e-de2c-5db4-bd2d-ba144ed6c273}",
+                "hidden": false,
+                "icon": "C:\\Users\\msrhmn\\Dropbox\\dotfiles\\terminal.png",
+                "name": "WSL",
+                "opacity": 90,
+                "source": "Windows.Terminal.Wsl",
+                "startingDirectory": "C:\\Users\\msrhmn",
+                "tabColor": "#222f3e",
+                "tabTitle": "Z Shell",
+                "useAcrylic": true
+            }
+        ]
+    },
+    "schemes": 
+    [
+        {
+            "background": "#0C0C0C",
+            "black": "#1E272E",
+            "blue": "#182C61",
+            "brightBlack": "#535C68",
+            "brightBlue": "#2E86DE",
+            "brightCyan": "#7ED6DF",
+            "brightGreen": "#079992",
+            "brightPurple": "#E056FD",
+            "brightRed": "#FF5252",
+            "brightWhite": "#DFF9FB",
+            "brightYellow": "#F6E58D",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#3A96DD",
+            "foreground": "#CCCCCC",
+            "green": "#009432",
+            "name": "msrhmn_custom",
+            "purple": "#8E44AD",
+            "red": "#C0392B",
+            "selectionBackground": "#FFFFFF",
+            "white": "#F5F6FA",
+            "yellow": "#F9CA24"
+        }
+    ]
+}
