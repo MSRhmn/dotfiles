@@ -1,8 +1,8 @@
-install nvm
-------------
+# install nvm
+
 cd ~
 git clone https://github.com/nvm-sh/nvm.git .nvm
 
-zsh-autosuggestions
---------------------
+# zsh-autosuggestions
+
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
