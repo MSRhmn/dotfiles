@@ -71,7 +71,7 @@ DISABLE_AUTO_TITLE="true"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git extract nvm zsh-autosuggestions)
+plugins=(git extract zsh-autosuggestions) # nvm (when needed)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -100,5 +100,4 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-[[ -s $HOME/.nvm/nvm.sh ]] && source $HOME/.nvm/nvm.sh  # This loads NVM
-
+# [[ -s $HOME/.nvm/nvm.sh ]] && source $HOME/.nvm/nvm.sh  # This loads NVM
