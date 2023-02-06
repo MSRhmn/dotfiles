@@ -1,1 +1,1 @@
-# Personal preferences for ZSH, Terminal, Devtool, Theme, Plugins
+# Personal preferences for zsh, git, editor, theme, plugins
