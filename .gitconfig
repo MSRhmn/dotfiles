@@ -1,8 +1,0 @@
-[gpg]
-	format = ssh
-[user]
-	signingkey = /home/msrhmn/.ssh/id_ed25519.pub
-	name = MS Rahman
-	email = apubdtea@gmail.com
-[init]
-	defaultBranch = master
