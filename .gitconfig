@@ -1,0 +1,10 @@
+[user]
+	name = Md. Shamim Rahman
+	email = apubdtea@gmail.com
+	signingkey = /home/msrhmn/.ssh/id_ed25519.pub
+[init]
+	defaultBranch = master
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true
