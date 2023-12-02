@@ -4,7 +4,7 @@
 # Software & Tools
 
 sudo apt update -y
-sudo apt install git curl tree dos2unix gnome-tweaks gnome-clocks fonts-firacode ibus-avro mpv keepassxc qbittorrent -y 
+sudo apt install git curl tree dos2unix gnome-tweaks gnome-clocks fonts-noto-core fonts-firacode ibus-avro mpv keepassxc qbittorrent -y 
 
 
 # Removing pre-installed softwares
