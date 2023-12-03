@@ -1,13 +1,13 @@
 #!/bin/bash
 
 
-# Software & Tools
+# Installing Softwares & Tools
 
 sudo apt update -y
 sudo apt install git curl tree dos2unix gnome-tweaks gnome-clocks fonts-noto-core fonts-firacode ibus-avro mpv keepassxc qbittorrent -y 
 
 
-# Removing pre-installed softwares
+# Removing Pre-installed Softwares
 
 sudo snap remove firefox -y
 sudo apt remove thunderbird -y
