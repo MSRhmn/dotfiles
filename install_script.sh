@@ -10,6 +10,6 @@ sudo apt install git curl vim black python3-pip tree dos2unix gnome-tweaks gnome
 # Removing Pre-installed Softwares
 
 sudo snap remove firefox -y
-sudo apt remove thunderbird remmina -y
+sudo apt remove thunderbird remmina cheese -y
 sudo apt autoremove -y
 
