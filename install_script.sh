@@ -1,18 +1,35 @@
 #!/bin/bash
 
-
-# Install Softwares & Tools
-
+# Update package lists
 sudo apt update -y
-sudo apt install git curl vim black python3-pip python3-venv tree dos2unix gnome-tweaks gnome-clocks fonts-noto-core fonts-firacode ibus-avro mpv keepassxc qbittorrent -y 
 
-# Install nvm
+# Install desired softwares and tools
+sudo apt install \
+  git \
+  curl \
+  vim \
+  black \
+  python3-pip \
+  python3-venv \
+  tree \
+  dos2unix \
+  gnome-tweaks \
+  gnome-clocks \
+  fonts-noto-core \
+  fonts-firacode \
+  ibus-avro \
+  mpv \
+  keepassxc \
+  qbittorrent -y
+
+# Install nvm (Node Version Manager)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
+# Remove unwanted pre-installed softwares
+sudo apt remove \
+  thunderbird \
+  remmina \
+  cheese -y
 
-# Remove Pre-installed Softwares
-
-sudo snap remove firefox -y
-sudo apt remove thunderbird remmina cheese -y
+# Clean up unused packages
 sudo apt autoremove -y
-
