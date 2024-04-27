@@ -1,16 +1,22 @@
 #!/bin/bash
 
+# Define dotfiles directory path
+DOTFILES_DIR="${HOME}/dotfiles"
 
-# Symlinking to users bin directory.
+# Symlink scripts to user's bin directory
+for script in "install_script.sh" "update_script.sh"; do
+  ln -sf "${DOTFILES_DIR}/${script}" ~/bin/"${script}"
+done
 
-ln -sf ~/dotfiles/install_script.sh ~/bin/install_script.sh
-ln -sf ~/dotfiles/update_script.sh ~/bin/update_script.sh
+# Symlink configuration files to user's home directory
+for file in ".bashrc" ".bash_aliases" ".profile" ".gitconfig"; do
+  ln -sf "${DOTFILES_DIR}/${file}"  ~/"${file}"
+done
 
+# Handle potential errors
+if [[ $? -ne 0 ]]; then
+  echo "Error occurred during symlinking process."
+  exit 1
+fi
 
-# Symlinking to users home directory.
-
-ln -sf ~/dotfiles/.bashrc ~/.bashrc
-ln -sf ~/dotfiles/.bash_aliases ~/.bash_aliases
-ln -sf ~/dotfiles/.profile ~/.profile
-ln -sf ~/dotfiles/.gitconfig ~/.gitconfig
-
+echo "Symlinks created successfully!"
