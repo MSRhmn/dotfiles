@@ -14,22 +14,18 @@ sudo apt install \
   tree \
   dos2unix \
   gnome-tweaks \
-  gnome-clocks \
-  fonts-noto-core \
   fonts-firacode \
   ibus-avro \
   mpv \
   keepassxc \
+  deja-dup \
   qbittorrent -y
 
 # Install nvm (Node Version Manager)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
 # Remove unwanted pre-installed softwares
-sudo apt remove \
-  thunderbird \
-  remmina \
-  cheese -y
+sudo snap remove --purge firefox
 
 # Clean up unused packages
 sudo apt autoremove -y
