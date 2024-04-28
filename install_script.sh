@@ -19,6 +19,7 @@ sudo apt install \
   mpv \
   keepassxc \
   deja-dup \
+  libreoffice \
   qbittorrent -y
 
 # Install nvm (Node Version Manager)
