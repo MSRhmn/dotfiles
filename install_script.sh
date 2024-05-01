@@ -5,7 +5,6 @@ sudo apt update -y
 
 # Install desired softwares and tools
 sudo apt install \
-  git \
   curl \
   vim \
   black \
