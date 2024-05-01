@@ -14,6 +14,7 @@ sudo apt install \
   tree \
   dos2unix \
   gnome-tweaks \
+  usb-creator-gtk \
   fonts-firacode \
   ibus-avro \
   mpv \
