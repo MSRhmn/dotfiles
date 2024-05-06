@@ -35,6 +35,7 @@ sudo apt-get update && sudo apt-get install firefox
 
 # Install nvm (Node Version Manager)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm install --lts
 
 # Remove unwanted pre-installed softwares
 sudo snap remove --purge firefox
