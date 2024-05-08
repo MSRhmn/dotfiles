@@ -16,6 +16,7 @@ PACKAGES=(
   tree
   dos2unix
   gnome-tweaks
+  gnome-calendar
   usb-creator-gtk
   fonts-firacode
   ibus-avro
