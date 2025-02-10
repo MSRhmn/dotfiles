@@ -21,6 +21,7 @@ PACKAGES=(
   fonts-firacode
   ibus-avro
   mpv
+  vlc
   keepassxc
   deja-dup
   libreoffice
