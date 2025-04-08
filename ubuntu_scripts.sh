@@ -1,22 +1,33 @@
-# Gnome desktop titlebar weekday
-gsettings set org.gnome.desktop.interface clock-show-weekday true
+#!/bin/bash
 
-# For changing default editor in linux
+# === Show weekday in GNOME clock ===
+gsettings set org.gnome.desktop.interface clock-show-weekday true
+echo "✔ GNOME clock set to show weekday"
+
+# === Set default editor (interactive) ===
+echo "➤ To set the default terminal editor (e.g. nano, vim), you'll now be prompted:"
 sudo update-alternatives --config editor
 
-# Disable tab scrolling in chromium based browser in linux (make it enabled)
-chrome://flags/#scrollable-tabstrip
+# === Enable Scrollable Tab Strip for Chromium-based browsers (manual flag) ===
+echo "🔧 Open your Chromium/Chrome-based browser and go to the following URL:"
+echo "    chrome://flags/#scrollable-tabstrip"
+echo "Then enable: Scrollable TabStrip"
+echo
 
-# For microsft edge
-sudo vi /usr/share/applications/microsoft-edge.desktop
-Exec=/usr/bin/microsoft-edge-stable %U--enable-features=ScrollableTabStrip
+# === Microsoft Edge: Enable Scrollable Tab Strip (autostart config) ===
+EDGE_DESKTOP_FILE="/usr/share/applications/microsoft-edge.desktop"
+if [ -f "$EDGE_DESKTOP_FILE" ]; then
+  echo "➤ Updating Microsoft Edge desktop file for ScrollableTabStrip..."
+  sudo sed -i 's|^Exec=/usr/bin/microsoft-edge-stable %U|Exec=/usr/bin/microsoft-edge-stable --enable-features=ScrollableTabStrip %U|' "$EDGE_DESKTOP_FILE"
+  echo "✔ ScrollableTabStrip enabled in Microsoft Edge launcher."
+else
+  echo "⚠ Microsoft Edge .desktop file not found at $EDGE_DESKTOP_FILE"
+fi
 
-# Click to Minimize on Ubuntu
+# === Enable click-to-minimize for GNOME dock ===
 gsettings set org.gnome.shell.extensions.dash-to-dock click-action 'minimize'
+echo "✔ GNOME dock set to minimize on click"
 
-# Bnalga font instructions
-  - For Bangla fonts list "apt-cache search bengali"
-	
-# Chrome youtube video horizontal stripe fix in intel based graphics
-sudo apt install '*video-intel*'
-
+# === Suggest Bengali fonts (manual step) ===
+echo "🔎 To search for Bengali fonts, run:"
+echo "    apt-cache search bengali | grep font"
