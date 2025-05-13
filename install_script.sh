@@ -104,47 +104,46 @@ else
   echo "Brave browser is already installed."
 fi
 
-# === Install Firefox .deb from Mozilla's APT repo ===
-
-# Remove Firefox Snap version and stub launcher
-echo "Ensuring no Firefox Snap or leftover symlinks..."
-sudo snap remove --purge firefox >/dev/null 2>&1 || true
-sudo rm -f /usr/bin/firefox
-
-# Check if Firefox is installed as a .deb
-if ! dpkg -l | grep -q '^ii  firefox '; then
-  echo "Installing Firefox from Mozilla APT repo..."
-
-  # Create keyring directory if it doesn't exist
-  sudo install -d -m 0755 /etc/apt/keyrings
-
-  # Download Mozilla's signing key
-  wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O - | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
-
-  # Verify key fingerprint
-  if gpg --show-keys /etc/apt/keyrings/packages.mozilla.org.asc | grep -q "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3"; then
-    echo "✔ Firefox key fingerprint verified."
+# === install firefox deb ===
+if command -v firefox >/dev/null 2>&1; then
+  echo "Firefox is already installed."
+  # Optionally check if it's Snap version
+  if snap list firefox >/dev/null 2>&1; then
+    echo "Snap Firefox found. Will remove after installing .deb version."
+    INSTALL_DEB_FIREFOX=true
   else
-    echo "✖ Firefox key fingerprint verification failed. Exiting for safety."
-    exit 1
+    echo "Native .deb Firefox found. No action needed."
+    INSTALL_DEB_FIREFOX=false
   fi
+else
+  echo "Firefox not found. Will install .deb version."
+  INSTALL_DEB_FIREFOX=true
+fi
 
-  # Add Mozilla APT repo
+if [ "$INSTALL_DEB_FIREFOX" = true ]; then
+  echo "Setting up Mozilla APT repo for Firefox..."
+  # (Add key + repo code here, like before)
+  sudo mkdir -p /etc/apt/keyrings
+  wget -qO- https://packages.mozilla.org/apt/repo-signing-key.gpg | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+
   echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | \
     sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
 
-  # Pin the Mozilla repo high
   echo '
 Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1000
 ' | sudo tee /etc/apt/preferences.d/mozilla
 
-  # Update & install
   sudo apt update
-  sudo apt install -y firefox
-else
-  echo "Firefox (.deb) is already installed."
+  if sudo apt install -y firefox; then
+    echo "✔ Firefox (.deb) installed successfully."
+    echo "Now removing Snap Firefox if present..."
+    sudo snap remove --purge firefox >/dev/null 2>&1 || true
+    sudo rm -f /usr/bin/firefox
+  else
+    echo "❌ Firefox install failed. Keeping system as is."
+  fi
 fi
 
 # === Install nvm (Node Version Manager) ===
