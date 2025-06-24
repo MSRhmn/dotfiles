@@ -104,47 +104,59 @@ else
   echo "Brave browser is already installed."
 fi
 
+
 # === install firefox deb ===
-if command -v firefox >/dev/null 2>&1; then
-  echo "Firefox is already installed."
-  # Optionally check if it's Snap version
-  if snap list firefox >/dev/null 2>&1; then
-    echo "Snap Firefox found. Will remove after installing .deb version."
-    INSTALL_DEB_FIREFOX=true
-  else
-    echo "Native .deb Firefox found. No action needed."
-    INSTALL_DEB_FIREFOX=false
-  fi
+
+echo "Checking Firefox installation status..."
+
+INSTALL_DEB_FIREFOX=false
+
+# Check if Firefox is installed via .deb (APT)
+if dpkg -l | grep -qw firefox; then
+  echo "✔ Native (.deb) Firefox is already installed."
 else
-  echo "Firefox not found. Will install .deb version."
+  echo "❌ Native (.deb) Firefox is not installed."
   INSTALL_DEB_FIREFOX=true
 fi
 
+# Check and remove Snap version if found
+if snap list firefox >/dev/null 2>&1; then
+  echo "⚠ Snap version of Firefox is installed. Removing..."
+  sudo snap remove --purge firefox || true
+  sudo rm -f /usr/bin/firefox
+else
+  echo "✔ No Snap version of Firefox detected."
+fi
+
+# Install .deb Firefox if not already installed
 if [ "$INSTALL_DEB_FIREFOX" = true ]; then
-  echo "Setting up Mozilla APT repo for Firefox..."
-  # (Add key + repo code here, like before)
-  sudo mkdir -p /etc/apt/keyrings
-  wget -qO- https://packages.mozilla.org/apt/repo-signing-key.gpg | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+  echo "📦 Installing Firefox from Mozilla's APT repo..."
 
-  echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | \
-    sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
+  # Add Mozilla's repo and key if not already added
+  if ! grep -q "packages.mozilla.org" /etc/apt/sources.list.d/mozilla.list 2>/dev/null; then
+    echo "Adding Mozilla APT repo..."
+    sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://packages.mozilla.org/apt/repo-signing-key.gpg | \
+      sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
 
-  echo '
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | \
+      sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
+
+    echo '
 Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1000
 ' | sudo tee /etc/apt/preferences.d/mozilla
+  fi
 
   sudo apt update
   if sudo apt install -y firefox; then
     echo "✔ Firefox (.deb) installed successfully."
-    echo "Now removing Snap Firefox if present..."
-    sudo snap remove --purge firefox >/dev/null 2>&1 || true
-    sudo rm -f /usr/bin/firefox
   else
-    echo "❌ Firefox install failed. Keeping system as is."
+    echo "❌ Failed to install Firefox."
   fi
 fi
+
 
 # === Install Microsoft Edge ===
 if ! command -v microsoft-edge >/dev/null 2>&1; then
@@ -163,6 +175,7 @@ else
   echo "Microsoft Edge is already installed."
 fi
 
+
 # === Install Google Chrome ===
 if ! command -v google-chrome >/dev/null 2>&1; then
   echo "Installing Google Chrome..."
@@ -179,6 +192,7 @@ if ! command -v google-chrome >/dev/null 2>&1; then
 else
   echo "Google Chrome is already installed."
 fi
+
 
 # === Install nvm (Node Version Manager) ===
 if [ ! -d "$HOME/.nvm" ]; then
@@ -200,6 +214,7 @@ if ! command -v node >/dev/null 2>&1; then
 else
   echo "Node.js is already installed."
 fi
+
 
 # Clean up unused packages
 echo "Running autoremove to clean up..."
