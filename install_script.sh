@@ -22,6 +22,7 @@ PACKAGES=(
   gnome-calendar
   usb-creator-gtk
   fonts-firacode
+  fonts-lohit-beng-bengali
   ibus-avro
   mpv
   vlc
