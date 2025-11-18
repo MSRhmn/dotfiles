@@ -43,6 +43,7 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 done
 
+
 # === Install Visual Studio Code ===
 if ! command -v code >/dev/null 2>&1; then
   echo "Installing Visual Studio Code..."
