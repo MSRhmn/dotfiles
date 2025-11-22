@@ -1,210 +1,152 @@
 #!/bin/bash
 
-# Function to get the latest Chrome stable version from Google's repository
-get_latest_chrome_version() {
-    local metadata
-    metadata=$(curl -fsSL https://dl.google.com/linux/chrome/deb/dists/stable/main/binary-amd64/Packages)
-    if [[ $? -ne 0 || -z "$metadata" ]]; then
+REPO_URL="https://dl.google.com/linux/chrome/deb"
+METADATA_URL="$REPO_URL/dists/stable/main/binary-amd64/Packages"
+KEYRING_PATH="/usr/share/keyrings/google-chrome-archive-keyring.gpg"
+CHROME_REPO_FILE="/etc/apt/sources.list.d/google-chrome.list"
+TEMP_DEB="/tmp/google-chrome-stable_update.deb"
+
+# Fetch Google Chrome repository metadata once
+fetch_metadata() {
+    metadata=$(curl -fsSL "$METADATA_URL")
+    if [[ $? -ne 0 || -z $metadata ]]; then
         echo "Error: Failed to fetch Google Chrome repository metadata." >&2
         exit 1
     fi
-    latest_version=$(echo "$metadata" | grep -A 10 "Package: google-chrome-stable" | grep -m1 "Version:" | awk '{print $2}' | cut -d'-' -f1)
-    if [[ -z "$latest_version" ]]; then
-        echo "Error: Could not parse latest Chrome stable version." >&2
-        exit 1
-    fi
-    echo "$latest_version"
 }
 
-# Function to get the latest Chrome stable package filename
-get_latest_chrome_filename() {
-    local metadata
-    metadata=$(curl -fsSL https://dl.google.com/linux/chrome/deb/dists/stable/main/binary-amd64/Packages)
-    if [[ $? -ne 0 || -z "$metadata" ]]; then
-        echo "Error: Failed to fetch Google Chrome repository metadata." >&2
-        exit 1
-    fi
-    filename=$(echo "$metadata" | grep -A 10 "Package: google-chrome-stable" | grep -m1 "Filename:" | awk '{print $2}')
-    if [[ -z "$filename" ]]; then
-        echo "Error: Could not parse Chrome stable filename." >&2
-        exit 1
-    fi
-    echo "$filename"
+# Extract latest Chrome version from metadata
+get_latest_version() {
+    echo "$metadata" | awk '/Package: google-chrome-stable/,/SHA256/ { if ($1=="Version:") {print $2; exit} }' | cut -d'-' -f1
 }
 
-# Function to get the locally installed Chrome stable version
-get_local_chrome_version() {
+# Extract latest Chrome package filename from metadata
+get_latest_filename() {
+    echo "$metadata" | awk '/Package: google-chrome-stable/,/SHA256/ { if ($1=="Filename:") {print $2; exit} }'
+}
+
+# Get locally installed Chrome version, or "not_installed"
+get_local_version() {
     if command -v google-chrome-stable &> /dev/null; then
-        local_version=$(google-chrome-stable --version | awk '{print $3}')
-        echo "$local_version"
+        google-chrome-stable --version | awk '{print $3}'
     elif command -v google-chrome &> /dev/null; then
-        local_version=$(google-chrome --version | awk '{print $3}')
-        echo "$local_version"
+        google-chrome --version | awk '{print $3}'
     else
         echo "not_installed"
     fi
-    # Warn if google-chrome-beta is installed
-    if command -v google-chrome-beta &> /dev/null; then
-        echo "Warning: google-chrome-beta is installed and may cause conflicts."
-    fi
 }
 
-# Function to compare versions
+# Compare versions using dpkg (returns 0 if equal, 1 if v1 < v2, 2 if v1 > v2)
 compare_versions() {
-    local v1=$1
-    local v2=$2
-    if [[ $v1 == $v2 ]]; then
+    local v1=$1 v2=$2
+    if [[ "$v1" == "$v2" ]]; then
         return 0
-    fi
-    lower_version=$(printf '%s\n' "$v1" "$v2" | sort -V | head -n1)
-    if [[ $lower_version == $v1 ]]; then
+    elif dpkg --compare-versions "$v1" "lt" "$v2"; then
         return 1
     else
         return 2
     fi
 }
 
-# Function to add Google's Chrome repository
+# Add Google Chrome repository if not present
 add_chrome_repo() {
-    echo "Adding Google Chrome repository..."
     if ! grep -q "dl.google.com/linux/chrome/deb" /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null; then
-        curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome-archive-keyring.gpg
-        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-archive-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | \
-            sudo tee /etc/apt/sources.list.d/google-chrome.list
+        echo "Adding Google Chrome repository..."
+        curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o "$KEYRING_PATH"
+        echo "deb [arch=amd64 signed-by=$KEYRING_PATH] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee "$CHROME_REPO_FILE"
         if [[ $? -ne 0 ]]; then
-            echo "Failed to add Google Chrome repository."
+            echo "Failed to add Google Chrome repository." >&2
             exit 1
         fi
     fi
 }
 
-# Function to remove google-chrome-beta if installed
-remove_chrome_beta() {
-    if command -v google-chrome-beta &> /dev/null; then
-        echo "Removing google-chrome-beta to avoid conflicts..."
-        sudo apt-get remove -y google-chrome-beta
-        if [[ $? -ne 0 ]]; then
-            echo "Failed to remove google-chrome-beta. Please remove it manually."
-            exit 1
-        fi
-    fi
-}
-
-# Function to update Chrome via apt
-update_chrome_apt() {
-    echo "Attempting to update Google Chrome via apt..."
+# Install or upgrade Chrome using apt
+install_or_upgrade_apt() {
     sudo apt-get update
     sudo apt-get install --only-upgrade -y google-chrome-stable
-    if [[ $? -eq 0 ]]; then
-        new_version=$(get_local_chrome_version)
-        compare_versions "$new_version" "$latest_version"
-        if [[ $? -eq 0 ]]; then
-            echo "Google Chrome has been successfully updated to version $new_version"
-            return 0
-        else
-            echo "Apt update did not install the latest version (expected $latest_version, got $new_version)."
-            return 1
-        fi
-    else
-        echo "Apt update failed."
-        return 1
-    fi
 }
 
-# Function to update Chrome via direct download
-update_chrome_direct() {
-    echo "Falling back to direct download of Google Chrome $latest_version..."
-    remove_chrome_beta
-    filename=$(get_latest_chrome_filename)
-    deb_url="https://dl.google.com/linux/chrome/deb/$filename"
-    temp_deb="/tmp/google-chrome-stable_${latest_version}.deb"
-    echo "Downloading from $deb_url..."
-    curl -fsSL "$deb_url" -o "$temp_deb"
-    if [[ $? -ne 0 ]]; then
-        echo "Specific version download failed. Trying current stable package..."
-        deb_url="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-        curl -fsSL "$deb_url" -o "$temp_deb"
-        if [[ $? -ne 0 ]]; then
-            echo "Failed to download Chrome package."
-            rm -f "$temp_deb"
+# Download and install Chrome from Debian package
+install_from_deb() {
+    local filename=$1
+    local url="$REPO_URL/$filename"
+
+    echo "Downloading Chrome package from $url..."
+    curl -fsSL "$url" -o "$TEMP_DEB" || {
+        echo "Failed to download specific version package; trying current stable package..."
+        url="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+        curl -fsSL "$url" -o "$TEMP_DEB" || {
+            echo "Failed to download Chrome package." >&2
+            rm -f "$TEMP_DEB"
             exit 1
-        fi
-    fi
-    sudo dpkg -i "$temp_deb"
-    if [[ $? -ne 0 ]]; then
-        echo "Failed to install Chrome package. Trying to fix dependencies..."
-        sudo apt-get install -f -y
-        if [[ $? -ne 0 ]]; then
-            echo "Failed to fix dependencies."
-            rm -f "$temp_deb"
-            exit 1
-        fi
-    fi
-    rm -f "$temp_deb"
-    new_version=$(get_local_chrome_version)
-    compare_versions "$new_version" "$latest_version"
-    if [[ $? -eq 0 ]]; then
-        echo "Google Chrome has been successfully updated to version $new_version"
-    else
-        echo "Direct download installed version $new_version, but expected $latest_version."
-        exit 1
-    fi
+        }
+    }
+
+    sudo dpkg -i "$TEMP_DEB" || {
+        echo "Package install failed; fixing dependencies..."
+        sudo apt-get install -f -y || { echo "Failed to fix dependencies." >&2; rm -f "$TEMP_DEB"; exit 1; }
+    }
+
+    rm -f "$TEMP_DEB"
 }
 
-# Function to install Chrome
-install_chrome() {
-    echo "Installing Google Chrome..."
-    remove_chrome_beta
-    add_chrome_repo
-    sudo apt-get update
-    sudo apt-get install -y google-chrome-stable
-    if [[ $? -eq 0 ]]; then
-        echo "Google Chrome has been successfully installed, version $(get_local_chrome_version)"
-    else
-        echo "Apt installation failed. Trying direct download..."
-        update_chrome_direct
-    fi
-}
-
-# Main script
+# Main routine
 echo "Checking for Google Chrome updates..."
 
-# Remove google-chrome-beta at the start
-remove_chrome_beta
+fetch_metadata
 
-# Get versions
-latest_version=$(get_latest_chrome_version)
-local_version=$(get_local_chrome_version)
+latest_version=$(get_latest_version)
+local_version=$(get_local_version)
 
-if [[ $local_version == "not_installed" ]]; then
-    echo "Google Chrome is not installed on this system."
-    read -p "Would you like to install Google Chrome version $latest_version? (y/n): " answer
-    if [[ $answer =~ ^[Yy]$ ]]; then
-        install_chrome
+if [[ "$local_version" == "not_installed" ]]; then
+    echo "Google Chrome is not installed."
+    read -p "Install Google Chrome version $latest_version? (y/n): " answer
+    if [[ "$answer" =~ ^[Yy]$ ]]; then
+        add_chrome_repo
+        install_or_upgrade_apt || {
+            echo "apt installation failed, falling back to direct package install..."
+            filename=$(get_latest_filename)
+            install_from_deb "$filename"
+        }
+        echo "Installed Google Chrome version $(get_local_version)."
     else
         echo "Installation cancelled."
         exit 0
     fi
 else
-    echo "Current installed version: $local_version"
-    echo "Latest available version: $latest_version"
+    echo "Current version: $local_version"
+    echo "Latest version: $latest_version"
 
-    # Compare versions
     compare_versions "$local_version" "$latest_version"
     result=$?
 
     if [[ $result -eq 0 ]]; then
-        echo "Your Google Chrome is up to date."
+        echo "Google Chrome is up to date."
         exit 0
     elif [[ $result -eq 1 ]]; then
-        echo "A newer version of Google Chrome is available."
-        read -p "Would you like to update to version $latest_version? (y/n): " answer
-        if [[ $answer =~ ^[Yy]$ ]]; then
+        echo "A newer version is available."
+        read -p "Update to version $latest_version? (y/n): " answer
+        if [[ "$answer" =~ ^[Yy]$ ]]; then
             add_chrome_repo
-            update_chrome_apt || update_chrome_direct
+            install_or_upgrade_apt || {
+                echo "apt upgrade failed, falling back to direct package install..."
+                filename=$(get_latest_filename)
+                install_from_deb "$filename"
+            }
+            new_version=$(get_local_version)
+            if [[ "$new_version" == "$latest_version" ]]; then
+                echo "Google Chrome successfully updated to $new_version."
+            else
+                echo "Warning: Installed version $new_version differs from expected $latest_version."
+                exit 1
+            fi
         else
             echo "Update cancelled."
             exit 0
         fi
+    else
+        echo "Installed version ($local_version) is newer than repository version ($latest_version)."
+        exit 0
     fi
 fi
