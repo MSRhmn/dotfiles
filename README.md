@@ -27,4 +27,4 @@ git clone https://github.com/msrhmn/dotfiles.git ~/dotfiles
 # Then copy only what you need, e.g.:
 cp ~/dotfiles/.bashrc ~/.bashrc
 cp ~/dotfiles/.bash_aliases ~/.bash_aliases
-cp ~/dotfiles/scripts/discord-update.sh ~/bin/discord-update  # make sure ~/bin is in $PATH
+
