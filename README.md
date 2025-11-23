@@ -27,6 +27,7 @@ git clone https://github.com/msrhmn/dotfiles.git ~/dotfiles
 # Then copy only what you need, e.g.:
 cp ~/dotfiles/.bashrc ~/.bashrc
 cp ~/dotfiles/.bash_aliases ~/.bash_aliases
+```
 
 ## License
 © 2025 Md. Shamim Rahman<br>
