@@ -33,3 +33,5 @@ cp ~/dotfiles/.bash_aliases ~/.bash_aliases
 © 2025 Md. Shamim Rahman<br>
 This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.  
 Feel free to use, fork, modify, or redistribute it however you like.
+
+Inspired by the awesome work of **@CoreyMSchafer** → [github.com/CoreyMSchafer/dotfiles](https://github.com/CoreyMSchafer/dotfiles)
