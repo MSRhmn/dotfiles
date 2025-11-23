@@ -28,3 +28,6 @@ git clone https://github.com/msrhmn/dotfiles.git ~/dotfiles
 cp ~/dotfiles/.bashrc ~/.bashrc
 cp ~/dotfiles/.bash_aliases ~/.bash_aliases
 
+## License
+© 2025 Md. Shamim Rahman<br>
+This project is licensed under the [MIT License](LICENSE).
