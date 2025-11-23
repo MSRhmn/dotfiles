@@ -11,3 +11,20 @@ My personal dotfiles for a fast, minimal, and stable Ubuntu daily driver so that
 - Shell: Bash with a few quality of aliases
 - Editor: VS Code, vi when I’m on a server or in terminal
 
+### How to use these dotfiles
+This repo is made since **Ubuntu 20.04/22.04/24.04** and so on with default GNOME + bash.  
+It will probably work fine on Debian/Pop!_OS/Linux Mint too.
+
+#### Option 1 – Quick & safe (recommended for most people)
+Just look around and copy what you like manually.
+Most files are tiny and self-explanatory.
+
+#### Option 2 – Selective install (my favourite)
+```bash
+# Clone anywhere you want
+git clone https://github.com/msrhmn/dotfiles.git ~/dotfiles
+
+# Then copy only what you need, e.g.:
+cp ~/dotfiles/.bashrc ~/.bashrc
+cp ~/dotfiles/.bash_aliases ~/.bash_aliases
+cp ~/dotfiles/scripts/discord-update.sh ~/bin/discord-update  # make sure ~/bin is in $PATH
