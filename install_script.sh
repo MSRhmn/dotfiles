@@ -1,8 +1,4 @@
 #!/bin/bash
-
-# Exit on errors
-set -e
-
 echo "=== Updating package lists ==="
 if ! sudo apt update; then
   echo "Error updating package lists. Exiting."
@@ -74,9 +70,6 @@ fi
 if ! command -v brave-browser >/dev/null 2>&1; then
   echo "Installing Brave browser..."
 
-  # Temporarily disable exit-on-error
-  set +e
-
   sudo apt install -y curl gnupg apt-transport-https
 
   # Create keyring directory if not exists
@@ -88,7 +81,6 @@ if ! command -v brave-browser >/dev/null 2>&1; then
 
   if [ $? -ne 0 ]; then
     echo "❌ Failed to download Brave key. Skipping Brave installation."
-    set -e
     exit 1
   fi
 
@@ -99,16 +91,12 @@ if ! command -v brave-browser >/dev/null 2>&1; then
 
   sudo apt update
   sudo apt install -y brave-browser
-
-  # Re-enable exit-on-error
-  set -e
 else
   echo "Brave browser is already installed."
 fi
 
 
 # === install firefox deb ===
-
 echo "Checking Firefox installation status..."
 
 INSTALL_DEB_FIREFOX=false
@@ -178,7 +166,7 @@ else
 fi
 
 
-# Install google chrome
+# === Install google chrome ===
 REPO_URL="https://dl.google.com/linux/chrome/deb"
 METADATA_URL="$REPO_URL/dists/stable/main/binary-amd64/Packages"
 KEYRING_PATH="/usr/share/keyrings/google-chrome-archive-keyring.gpg"
@@ -270,11 +258,8 @@ else
 fi
 
 
-# Discord install
-set -e
-
-# Temporary directory for download
-TMP_DIR="/tmp/discord-install"
+# === Discord install ===
+TMP_DIR="/tmp/discord-install"  # Temporary directory for download
 DEB_FILE="$TMP_DIR/discord.deb"
 DISCORD_URL="https://discord.com/api/download?platform=linux&format=deb"
 
@@ -301,7 +286,7 @@ rm -rf "$TMP_DIR"
 echo "🎉 Discord installation complete."
 
 
-# Postman install
+# === Postman install ===
 echo "Starting Postman installation..."
 
 # Check if Postman is already installed
