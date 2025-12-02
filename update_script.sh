@@ -4,7 +4,7 @@
 sudo apt update && sudo apt upgrade -y
 
 
-# Discord update script
+# === Discord update script ===
 echo ==== Checking For Updates ====; echo;
 
 # checking for discord app
@@ -56,7 +56,7 @@ rm $download_filename
 echo "***Installation Completed ***."
 
 
-# Google chrome update script
+# === Google chrome update script ===
 REPO_URL="https://dl.google.com/linux/chrome/deb"
 METADATA_URL="$REPO_URL/dists/stable/main/binary-amd64/Packages"
 KEYRING_PATH="/usr/share/keyrings/google-chrome-archive-keyring.gpg"
