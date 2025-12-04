@@ -109,13 +109,14 @@ else
   INSTALL_DEB_FIREFOX=true
 fi
 
-# Check and remove Snap version if found
+# Remove /usr/bin/firefox only if it belongs to Snap
 if snap list firefox >/dev/null 2>&1; then
-  echo "⚠ Snap version of Firefox is installed. Removing..."
-  sudo snap remove --purge firefox || true
-  sudo rm -f /usr/bin/firefox
-else
-  echo "✔ No Snap version of Firefox detected."
+    sudo snap remove --purge firefox || true
+
+    # Only delete snap's symlink, not system Firefox
+    if [ -L /usr/bin/firefox ] && readlink /usr/bin/firefox | grep -q "snap/firefox"; then
+        sudo rm /usr/bin/firefox
+    fi
 fi
 
 # Install .deb Firefox if not already installed
