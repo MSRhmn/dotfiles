@@ -6,6 +6,10 @@ sudo apt-mark hold "nvidia-*"
 # Update the package list and upgrade installed packages
 sudo apt update && sudo apt upgrade -y
 
+# Update to a specific Nvidia driver tested version later:
+# sudo apt-mark unhold "nvidia-*"
+# sudo apt install nvidia-driver-535
+# sudo apt-mark hold "nvidia-*"
 
 # === Discord update script ===
 echo ==== Checking For Updates ====; echo;
