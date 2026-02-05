@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Ensure the Nvidia driver is held before upgrading
-sudo apt-mark hold "nvidia-*"
+# sudo apt-mark hold "nvidia-*"
 
 # Update the package list and upgrade installed packages
 sudo apt update && sudo apt upgrade -y
