@@ -27,6 +27,12 @@ PACKAGES=(
   libreoffice
   qbittorrent
   wget
+  tmux
+  htop
+  ripgrep
+  fd-find
+  bat
+  ncdu
 )
 
 # Install desired software if not already installed
