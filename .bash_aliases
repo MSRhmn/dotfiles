@@ -10,6 +10,8 @@ alias dl="cd ~/Downloads"
 alias dt="cd ~/Desktop"
 alias p="cd ~/projects"
 
+alias ll="ls -alF"
+
 
 # Applications
 alias python=python3
