@@ -13,6 +13,8 @@ alias p="cd ~/projects"
 
 # Applications
 alias python=python3
+alias du1="du -h --max-depth=1" # Disk usage shortcut
+alias nc="ncdu"
 
 
 # Tool Fixes
