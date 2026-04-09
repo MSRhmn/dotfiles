@@ -14,3 +14,11 @@ alias p="cd ~/projects"
 # Applications
 alias python=python3
 
+
+# Tool Fixes
+
+# 'fd' Ubuntu installs as 'fdfind'
+if command -v fdfind >/dev/null 2>&1; then
+alias fd="fdfind"
+fi
+
