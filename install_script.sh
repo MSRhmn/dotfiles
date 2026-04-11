@@ -6,7 +6,7 @@ echo "=== Starting System Setup ==="
 sudo apt update
 
 
-# Define list of desired software and tools
+# Core packages
 PACKAGES=(
   curl
   vim
@@ -36,7 +36,8 @@ PACKAGES=(
   ncdu
 )
 
-# Install desired software if not already installed
+echo "=== Installing Base Packages ==="
+
 for pkg in "${PACKAGES[@]}"; do
   if dpkg -s "$pkg" >/dev/null 2>&1; then
     echo "$pkg is already installed."
