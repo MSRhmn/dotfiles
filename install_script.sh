@@ -232,7 +232,6 @@ if [[ "$local_version" == "not_installed" ]]; then
         install_chrome
     else
         echo "Installation cancelled."
-        exit 0
     fi
 else
     echo "Google Chrome is already installed (version $local_version). Installation skipped."
@@ -274,7 +273,6 @@ fi
 ## Exit if already installed
 #if is_discord_installed; then
 #    echo "✅ Discord is already installed. Use your update script if needed."
-#    exit 0
 #fi
 #
 #echo "📥 Downloading Discord..."
@@ -295,7 +293,6 @@ echo "Starting Postman installation..."
 # Check if Postman is already installed
 if command -v postman &>/dev/null || [ -d "/opt/Postman" ]; then
     echo "Postman is already installed. Aborting installation."
-    exit 0
 fi
 
 # 1. Download the latest Postman Linux 64-bit tarball
