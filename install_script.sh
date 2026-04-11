@@ -63,8 +63,7 @@ if ! command -v code >/dev/null 2>&1; then
   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | \
     sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
 
-  # Update and install
-  sudo apt update
+  # Install
   sudo apt install -y code
 
 else
@@ -95,7 +94,6 @@ if ! command -v brave-browser >/dev/null 2>&1; then
   echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" | \
     sudo tee /etc/apt/sources.list.d/brave-browser-release.list
 
-  sudo apt update
   sudo apt install -y brave-browser
 else
   echo "Brave browser is already installed."
@@ -146,7 +144,6 @@ Pin-Priority: 1000
 ' | sudo tee /etc/apt/preferences.d/mozilla
   fi
 
-  sudo apt update
   if sudo apt install -y firefox; then
     echo "✔ Firefox (.deb) installed successfully."
   else
@@ -166,7 +163,6 @@ if ! command -v microsoft-edge >/dev/null 2>&1; then
   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" | \
     sudo tee /etc/apt/sources.list.d/microsoft-edge.list > /dev/null
 
-  sudo apt update
   sudo apt install -y microsoft-edge-stable
 else
   echo "Microsoft Edge is already installed."
