@@ -1,9 +1,10 @@
 #!/bin/bash
-echo "=== Updating package lists ==="
-if ! sudo apt update; then
-  echo "Error updating package lists. Exiting."
-  exit 1
-fi
+
+set -euo pipefail
+
+echo "=== Starting System Setup ==="
+sudo apt update
+
 
 # Define list of desired software and tools
 PACKAGES=(
