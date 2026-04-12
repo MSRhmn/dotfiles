@@ -101,57 +101,6 @@ fi
 
 
 # === install firefox deb ===
-# echo "Checking Firefox installation status..."
-
-# INSTALL_DEB_FIREFOX=false
-
-# # Check if Firefox is installed via .deb (APT)
-# if dpkg -l | grep -qw firefox; then
-#   echo "✔ Native (.deb) Firefox is already installed."
-# else
-#   echo "❌ Native (.deb) Firefox is not installed."
-#   INSTALL_DEB_FIREFOX=true
-# fi
-
-# # Remove /usr/bin/firefox only if it belongs to Snap
-# if snap list firefox >/dev/null 2>&1; then
-#     sudo snap remove --purge firefox || true
-
-#     # Only delete snap's symlink, not system Firefox
-#     if [ -L /usr/bin/firefox ] && readlink /usr/bin/firefox | grep -q "snap/firefox"; then
-#         sudo rm /usr/bin/firefox
-#     fi
-# fi
-
-# # Install .deb Firefox if not already installed
-# if [ "$INSTALL_DEB_FIREFOX" = true ]; then
-#   echo "📦 Installing Firefox from Mozilla's APT repo..."
-
-#   # Add Mozilla's repo and key if not already added
-#   if ! grep -q "packages.mozilla.org" /etc/apt/sources.list.d/mozilla.list 2>/dev/null; then
-#     echo "Adding Mozilla APT repo..."
-#     sudo mkdir -p /etc/apt/keyrings
-#     wget -qO- https://packages.mozilla.org/apt/repo-signing-key.gpg | \
-#       sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
-
-#     echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | \
-#       sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
-
-#     echo '
-# Package: *
-# Pin: origin packages.mozilla.org
-# Pin-Priority: 1000
-# ' | sudo tee /etc/apt/preferences.d/mozilla
-#   fi
-
-#   if sudo apt install -y firefox; then
-#     echo "✔ Firefox (.deb) installed successfully."
-#   else
-#     echo "❌ Failed to install Firefox."
-#   fi
-# fi
-
-
 if snap list firefox >/dev/null 2>&1; then
 sudo snap remove --purge firefox || true
 fi
@@ -198,71 +147,25 @@ fi
 
 
 # === Install google chrome ===
-REPO_URL="https://dl.google.com/linux/chrome/deb"
-METADATA_URL="$REPO_URL/dists/stable/main/binary-amd64/Packages"
-KEYRING_PATH="/usr/share/keyrings/google-chrome-archive-keyring.gpg"
-CHROME_REPO_FILE="/etc/apt/sources.list.d/google-chrome.list"
+if ! command -v google-chrome >/dev/null 2>&1; then
+read -p "Install Google Chrome? (y/n): " answer
+if [[ "$answer" =~ ^[Yy]$ ]]; then
+echo "Installing Chrome..."
 
-fetch_metadata() {
-    metadata=$(curl -fsSL "$METADATA_URL")
-    if [[ $? -ne 0 || -z $metadata ]]; then
-        echo "Error: Failed to fetch Google Chrome repository metadata." >&2
-        exit 1
-    fi
-}
+curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | \
+  sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
 
-get_latest_version() {
-    echo "$metadata" | awk '/Package: google-chrome-stable/,/SHA256/ { if ($1=="Version:") {print $2; exit} }' | cut -d'-' -f1
-}
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | \
+  sudo tee /etc/apt/sources.list.d/google-chrome.list > /dev/null
 
-get_local_version() {
-    if command -v google-chrome-stable &> /dev/null; then
-        google-chrome-stable --version | awk '{print $3}'
-    elif command -v google-chrome &> /dev/null; then
-        google-chrome --version | awk '{print $3}'
-    else
-        echo "not_installed"
-    fi
-}
+sudo apt update
+sudo apt install -y google-chrome-stable
 
-add_chrome_repo() {
-    if ! grep -q "dl.google.com/linux/chrome/deb" /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null; then
-        echo "Adding Google Chrome repository..."
-        curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o "$KEYRING_PATH"
-        echo "deb [arch=amd64 signed-by=$KEYRING_PATH] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee "$CHROME_REPO_FILE"
-        if [[ $? -ne 0 ]]; then
-            echo "Failed to add Google Chrome repository." >&2
-            exit 1
-        fi
-    fi
-}
-
-install_chrome() {
-    echo "Installing Google Chrome..."
-    add_chrome_repo
-    sudo apt-get update
-    sudo apt-get install -y google-chrome-stable
-    if [[ $? -eq 0 ]]; then
-        echo "Google Chrome installed successfully, version $(get_local_version)."
-    else
-        echo "Installation failed."
-        exit 1
-    fi
-}
-
-# Main logic
-local_version=$(get_local_version)
-if [[ "$local_version" == "not_installed" ]]; then
-    fetch_metadata
-    latest_version=$(get_latest_version)
-    read -p "Google Chrome is not installed. Install version $latest_version? (y/n): " answer
-    if [[ "$answer" =~ ^[Yy]$ ]]; then
-        install_chrome
-    else
-        echo "Installation cancelled."
-    fi
 else
-    echo "Google Chrome is already installed (version $local_version). Installation skipped."
+echo "Chrome skipped."
+fi
+else
+echo "Chrome already installed."
 fi
 
 
