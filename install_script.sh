@@ -81,32 +81,22 @@ echo "VS Code already installed."
 fi
 
 
-# === Install Brave browser ===
+# === Install Brave ===
 if ! command -v brave-browser >/dev/null 2>&1; then
-  echo "Installing Brave browser..."
+echo "Installing Brave..."
 
-  sudo apt install -y curl gnupg apt-transport-https
+sudo mkdir -p /usr/share/keyrings
 
-  # Create keyring directory if not exists
-  sudo mkdir -p /usr/share/keyrings
+curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+-o /usr/share/keyrings/brave-browser-archive-keyring.gpg
 
-  # Download and import Brave GPG key (updated URL)
-  curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg \
-    -o brave-browser-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" |
+sudo tee /etc/apt/sources.list.d/brave-browser-release.list > /dev/null
 
-  if [ $? -ne 0 ]; then
-    echo "❌ Failed to download Brave key. Skipping Brave installation."
-    exit 1
-  fi
-
-  sudo mv brave-browser-archive-keyring.gpg /usr/share/keyrings/brave-browser-archive-keyring.gpg
-
-  echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" | \
-    sudo tee /etc/apt/sources.list.d/brave-browser-release.list
-
-  sudo apt install -y brave-browser
+sudo apt update
+sudo apt install -y brave-browser
 else
-  echo "Brave browser is already installed."
+echo "Brave already installed."
 fi
 
 
