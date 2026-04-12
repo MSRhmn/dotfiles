@@ -101,54 +101,82 @@ fi
 
 
 # === install firefox deb ===
-echo "Checking Firefox installation status..."
+# echo "Checking Firefox installation status..."
 
-INSTALL_DEB_FIREFOX=false
+# INSTALL_DEB_FIREFOX=false
 
-# Check if Firefox is installed via .deb (APT)
-if dpkg -l | grep -qw firefox; then
-  echo "✔ Native (.deb) Firefox is already installed."
-else
-  echo "❌ Native (.deb) Firefox is not installed."
-  INSTALL_DEB_FIREFOX=true
-fi
+# # Check if Firefox is installed via .deb (APT)
+# if dpkg -l | grep -qw firefox; then
+#   echo "✔ Native (.deb) Firefox is already installed."
+# else
+#   echo "❌ Native (.deb) Firefox is not installed."
+#   INSTALL_DEB_FIREFOX=true
+# fi
 
-# Remove /usr/bin/firefox only if it belongs to Snap
+# # Remove /usr/bin/firefox only if it belongs to Snap
+# if snap list firefox >/dev/null 2>&1; then
+#     sudo snap remove --purge firefox || true
+
+#     # Only delete snap's symlink, not system Firefox
+#     if [ -L /usr/bin/firefox ] && readlink /usr/bin/firefox | grep -q "snap/firefox"; then
+#         sudo rm /usr/bin/firefox
+#     fi
+# fi
+
+# # Install .deb Firefox if not already installed
+# if [ "$INSTALL_DEB_FIREFOX" = true ]; then
+#   echo "📦 Installing Firefox from Mozilla's APT repo..."
+
+#   # Add Mozilla's repo and key if not already added
+#   if ! grep -q "packages.mozilla.org" /etc/apt/sources.list.d/mozilla.list 2>/dev/null; then
+#     echo "Adding Mozilla APT repo..."
+#     sudo mkdir -p /etc/apt/keyrings
+#     wget -qO- https://packages.mozilla.org/apt/repo-signing-key.gpg | \
+#       sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+
+#     echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | \
+#       sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
+
+#     echo '
+# Package: *
+# Pin: origin packages.mozilla.org
+# Pin-Priority: 1000
+# ' | sudo tee /etc/apt/preferences.d/mozilla
+#   fi
+
+#   if sudo apt install -y firefox; then
+#     echo "✔ Firefox (.deb) installed successfully."
+#   else
+#     echo "❌ Failed to install Firefox."
+#   fi
+# fi
+
+
 if snap list firefox >/dev/null 2>&1; then
-    sudo snap remove --purge firefox || true
-
-    # Only delete snap's symlink, not system Firefox
-    if [ -L /usr/bin/firefox ] && readlink /usr/bin/firefox | grep -q "snap/firefox"; then
-        sudo rm /usr/bin/firefox
-    fi
+sudo snap remove --purge firefox || true
 fi
 
-# Install .deb Firefox if not already installed
-if [ "$INSTALL_DEB_FIREFOX" = true ]; then
-  echo "📦 Installing Firefox from Mozilla's APT repo..."
+if ! dpkg -l | grep -qw firefox; then
+echo "Installing Firefox (.deb)..."
 
-  # Add Mozilla's repo and key if not already added
-  if ! grep -q "packages.mozilla.org" /etc/apt/sources.list.d/mozilla.list 2>/dev/null; then
-    echo "Adding Mozilla APT repo..."
-    sudo mkdir -p /etc/apt/keyrings
-    wget -qO- https://packages.mozilla.org/apt/repo-signing-key.gpg | \
-      sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
+sudo mkdir -p /etc/apt/keyrings
 
-    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | \
-      sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
+curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg |
+sudo tee /etc/apt/keyrings/mozilla.asc > /dev/null
 
-    echo '
+echo "deb [signed-by=/etc/apt/keyrings/mozilla.asc] https://packages.mozilla.org/apt mozilla main" |
+sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
+
+echo '
 Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1000
-' | sudo tee /etc/apt/preferences.d/mozilla
-  fi
+' | sudo tee /etc/apt/preferences.d/mozilla > /dev/null
 
-  if sudo apt install -y firefox; then
-    echo "✔ Firefox (.deb) installed successfully."
-  else
-    echo "❌ Failed to install Firefox."
-  fi
+sudo apt update
+sudo apt install -y firefox
+else
+echo "Firefox already installed."
 fi
 
 
