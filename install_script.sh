@@ -64,26 +64,20 @@ fi
 
 # === Install Visual Studio Code ===
 if ! command -v code >/dev/null 2>&1; then
-  echo "Installing Visual Studio Code..."
+echo "Installing VS Code..."
 
-  # Install dependencies
-  sudo apt install -y wget gpg apt-transport-https
+sudo mkdir -p /etc/apt/keyrings
 
-  # Create keyrings directory if missing
-  sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://packages.microsoft.com/keys/microsoft.asc |
+sudo gpg --dearmor -o /etc/apt/keyrings/vscode.gpg
 
-  # Import Microsoft GPG key securely
-  wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/vscode.gpg] https://packages.microsoft.com/repos/code stable main" |
+sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
 
-  # Add the VS Code repository
-  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | \
-    sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
-
-  # Install
-  sudo apt install -y code
-
+sudo apt update
+sudo apt install -y code
 else
-  echo "Visual Studio Code is already installed."
+echo "VS Code already installed."
 fi
 
 
