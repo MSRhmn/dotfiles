@@ -48,6 +48,20 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 
+# Helper function to check if command is missing
+install_if_missing() {
+local cmd="$1"
+local pkg="$2"
+
+if ! command -v "$cmd" >/dev/null 2>&1; then
+echo "Installing $pkg..."
+sudo apt install -y "$pkg"
+else
+echo "$pkg already installed."
+fi
+}
+
+
 # === Install Visual Studio Code ===
 if ! command -v code >/dev/null 2>&1; then
   echo "Installing Visual Studio Code..."
