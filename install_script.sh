@@ -10,6 +10,7 @@ sudo apt update
 PACKAGES=(
   curl
   vim
+  shfmt
   black
   python3-pip
   python3-venv
