@@ -5,7 +5,6 @@ set -euo pipefail
 echo "=== Starting System Setup ==="
 sudo apt update
 
-
 # Core packages
 PACKAGES=(
   curl
@@ -48,87 +47,82 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 done
 
-
 # Helper function to check if command is missing
 install_if_missing() {
-local cmd="$1"
-local pkg="$2"
+  local cmd="$1"
+  local pkg="$2"
 
-if ! command -v "$cmd" >/dev/null 2>&1; then
-echo "Installing $pkg..."
-sudo apt install -y "$pkg"
-else
-echo "$pkg already installed."
-fi
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "Installing $pkg..."
+    sudo apt install -y "$pkg"
+  else
+    echo "$pkg already installed."
+  fi
 }
-
 
 # === Install Visual Studio Code ===
 if ! command -v code >/dev/null 2>&1; then
-echo "Installing VS Code..."
+  echo "Installing VS Code..."
 
-sudo mkdir -p /etc/apt/keyrings
+  sudo mkdir -p /etc/apt/keyrings
 
-curl -fsSL https://packages.microsoft.com/keys/microsoft.asc |
-sudo gpg --dearmor -o /etc/apt/keyrings/vscode.gpg
+  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc |
+    sudo gpg --dearmor -o /etc/apt/keyrings/vscode.gpg
 
-echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/vscode.gpg] https://packages.microsoft.com/repos/code stable main" |
-sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/vscode.gpg] https://packages.microsoft.com/repos/code stable main" |
+    sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
 
-sudo apt update
-sudo apt install -y code
+  sudo apt update
+  sudo apt install -y code
 else
-echo "VS Code already installed."
+  echo "VS Code already installed."
 fi
-
 
 # === Install Brave ===
 if ! command -v brave-browser >/dev/null 2>&1; then
-echo "Installing Brave..."
+  echo "Installing Brave..."
 
-sudo mkdir -p /usr/share/keyrings
+  sudo mkdir -p /usr/share/keyrings
 
-curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
--o /usr/share/keyrings/brave-browser-archive-keyring.gpg
+  curl -fsSL https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+  -o /usr/share/keyrings/brave-browser-archive-keyring.gpg
 
-echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" |
-sudo tee /etc/apt/sources.list.d/brave-browser-release.list > /dev/null
+  echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" |
+    sudo tee /etc/apt/sources.list.d/brave-browser-release.list >/dev/null
 
-sudo apt update
-sudo apt install -y brave-browser
+  sudo apt update
+  sudo apt install -y brave-browser
 else
-echo "Brave already installed."
+  echo "Brave already installed."
 fi
-
 
 # === install firefox deb ===
 if snap list firefox >/dev/null 2>&1; then
-sudo snap remove --purge firefox || true
+  sudo snap remove --purge firefox || true
 fi
 
 if ! dpkg -l | grep -qw firefox; then
-echo "Installing Firefox (.deb)..."
+  echo "Installing Firefox (.deb)..."
 
-sudo mkdir -p /etc/apt/keyrings
+  sudo mkdir -p /etc/apt/keyrings
 
-curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg |
-sudo tee /etc/apt/keyrings/mozilla.asc > /dev/null
+  curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg |
+    sudo tee /etc/apt/keyrings/mozilla.asc >/dev/null
 
-echo "deb [signed-by=/etc/apt/keyrings/mozilla.asc] https://packages.mozilla.org/apt mozilla main" |
-sudo tee /etc/apt/sources.list.d/mozilla.list > /dev/null
+  echo "deb [signed-by=/etc/apt/keyrings/mozilla.asc] https://packages.mozilla.org/apt mozilla main" |
+    sudo tee /etc/apt/sources.list.d/mozilla.list >/dev/null
 
-echo '
+  echo '
 Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1000
-' | sudo tee /etc/apt/preferences.d/mozilla > /dev/null
+' | sudo tee /etc/apt/preferences.d/mozilla >/dev/null
 
-sudo apt update
-sudo apt install -y firefox
+  sudo apt update
+  sudo apt install -y firefox
 else
-echo "Firefox already installed."
+  echo "Firefox already installed."
 fi
-
 
 # === Install Microsoft Edge ===
 if ! command -v microsoft-edge >/dev/null 2>&1; then
@@ -136,39 +130,37 @@ if ! command -v microsoft-edge >/dev/null 2>&1; then
 
   # Import Microsoft GPG key and add Edge repository
   sudo mkdir -p /etc/apt/keyrings
-  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft-edge.gpg > /dev/null
+  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft-edge.gpg >/dev/null
 
-  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" | \
-    sudo tee /etc/apt/sources.list.d/microsoft-edge.list > /dev/null
+  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" |
+    sudo tee /etc/apt/sources.list.d/microsoft-edge.list >/dev/null
 
   sudo apt install -y microsoft-edge-stable
 else
   echo "Microsoft Edge is already installed."
 fi
 
-
 # === Install google chrome ===
 if ! command -v google-chrome >/dev/null 2>&1; then
-read -p "Install Google Chrome? (y/n): " answer
-if [[ "$answer" =~ ^[Yy]$ ]]; then
-echo "Installing Chrome..."
+  read -p "Install Google Chrome? (y/n): " answer
+  if [[ "$answer" =~ ^[Yy]$ ]]; then
+    echo "Installing Chrome..."
 
-curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | \
-  sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
+    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub |
+      sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
 
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | \
-  sudo tee /etc/apt/sources.list.d/google-chrome.list > /dev/null
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" |
+      sudo tee /etc/apt/sources.list.d/google-chrome.list >/dev/null
 
-sudo apt update
-sudo apt install -y google-chrome-stable
+    sudo apt update
+    sudo apt install -y google-chrome-stable
 
+  else
+    echo "Chrome skipped."
+  fi
 else
-echo "Chrome skipped."
+  echo "Chrome already installed."
 fi
-else
-echo "Chrome already installed."
-fi
-
 
 # === Install nvm (Node Version Manager) ===
 if [ ! -d "$HOME/.nvm" ]; then
@@ -191,21 +183,20 @@ else
   echo "Node.js is already installed."
 fi
 
-
 # === Install Postman ===
 echo "Checking Postman installation..."
 
 if command -v postman &>/dev/null || [ -d "/opt/Postman" ]; then
-    echo "Postman is already installed. Skipping..."
+  echo "Postman is already installed. Skipping..."
 else
-    echo "Installing Postman..."
+  echo "Installing Postman..."
 
-    wget https://dl.pstmn.io/download/latest/linux64 -O /tmp/postman.tar.gz
+  wget https://dl.pstmn.io/download/latest/linux64 -O /tmp/postman.tar.gz
 
-    sudo tar -xzf /tmp/postman.tar.gz -C /opt/
-    sudo ln -sf /opt/Postman/Postman /usr/bin/postman
+  sudo tar -xzf /tmp/postman.tar.gz -C /opt/
+  sudo ln -sf /opt/Postman/Postman /usr/bin/postman
 
-    sudo tee /usr/share/applications/postman.desktop > /dev/null <<EOL
+  sudo tee /usr/share/applications/postman.desktop >/dev/null <<EOL
 [Desktop Entry]
 Name=Postman
 Exec=postman
@@ -214,18 +205,16 @@ Type=Application
 Categories=Development;
 EOL
 
-    rm /tmp/postman.tar.gz
+  rm /tmp/postman.tar.gz
 
-    echo "Postman installation complete!"
+  echo "Postman installation complete!"
 fi
-
 
 # Clean up unused packages
 echo "Running autoremove to clean up..."
 sudo apt autoremove -y
 
 echo "=== Script completed successfully ==="
-
 
 ## === Discord install ===
 #TMP_DIR="/tmp/discord-install"  # Temporary directory for download
