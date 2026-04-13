@@ -134,7 +134,8 @@ if ! command -v microsoft-edge >/dev/null 2>&1; then
 
   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" |
     sudo tee /etc/apt/sources.list.d/microsoft-edge.list >/dev/null
-
+  
+  sudo apt update
   sudo apt install -y microsoft-edge-stable
 else
   echo "Microsoft Edge is already installed."
