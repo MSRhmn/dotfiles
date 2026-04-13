@@ -47,19 +47,6 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 done
 
-# Helper function to check if command is missing
-install_if_missing() {
-  local cmd="$1"
-  local pkg="$2"
-
-  if ! command -v "$cmd" >/dev/null 2>&1; then
-    echo "Installing $pkg..."
-    sudo apt install -y "$pkg"
-  else
-    echo "$pkg already installed."
-  fi
-}
-
 # === Install Visual Studio Code ===
 if ! command -v code >/dev/null 2>&1; then
   echo "Installing VS Code..."
@@ -134,7 +121,7 @@ if ! command -v microsoft-edge >/dev/null 2>&1; then
 
   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" |
     sudo tee /etc/apt/sources.list.d/microsoft-edge.list >/dev/null
-  
+
   sudo apt update
   sudo apt install -y microsoft-edge-stable
 else
