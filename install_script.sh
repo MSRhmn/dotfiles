@@ -198,6 +198,24 @@ EOL
   echo "Postman installation complete!"
 fi
 
+# === Install Spotify ===
+if ! command -v spotify >/dev/null 2>&1; then
+  echo "Installing Spotify..."
+
+  sudo mkdir -p /etc/apt/keyrings
+
+  curl -fsSL https://download.spotify.com/debian/pubkey_6224F9941A8AA6D1.gpg |
+    sudo gpg --dearmor -o /etc/apt/keyrings/spotify.gpg
+
+  echo "deb [signed-by=/etc/apt/keyrings/spotify.gpg] http://repository.spotify.com stable non-free" |
+    sudo tee /etc/apt/sources.list.d/spotify.list >/dev/null
+
+  sudo apt update
+  sudo apt install -y spotify-client
+else
+  echo "Spotify already installed."
+fi
+
 # Clean up unused packages
 echo "Running autoremove to clean up..."
 sudo apt autoremove -y
