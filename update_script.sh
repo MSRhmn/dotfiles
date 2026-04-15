@@ -4,7 +4,11 @@
 # sudo apt-mark hold "nvidia-*"
 
 # Update the package list and upgrade installed packages
-sudo apt update && sudo apt upgrade -y
+echo "Updating package lists..."
+sudo apt update
+
+echo "Upgrading packages..."
+sudo apt upgrade -y
 
 # Automatically remove unused packages
 sudo apt autoremove -y
