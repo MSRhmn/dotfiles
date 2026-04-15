@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Update the package list and upgrade installed packages
-echo "Updating package lists..."
+echo "=== Starting System Update ==="
 sudo apt update
 
 echo "Upgrading packages..."
@@ -25,7 +25,7 @@ if [ -d "$HOME/.nvm" ]; then
   nvm install --lts >/dev/null
 fi
 
-echo "=== System update completed successfully ==="
+echo "=== System Update Completed Successfully ==="
 
 # # === Discord update script ===
 # echo ==== Checking For Updates ====; echo;
