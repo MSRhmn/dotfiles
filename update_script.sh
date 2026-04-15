@@ -14,6 +14,10 @@ sudo apt upgrade -y
 echo "Removing unused packages..."
 sudo apt autoremove -y
 
+# Clean package cache
+echo "Cleaning package cache..."
+sudo apt autoclean -y
+
 # Update to a specific Nvidia driver tested version later:
 # sudo apt-mark unhold "nvidia-*"
 # sudo apt install nvidia-driver-535
