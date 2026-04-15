@@ -15,7 +15,6 @@ sudo apt autoremove -y
 echo "Cleaning package cache..."
 sudo apt autoclean -y
 
-
 # # === Discord update script ===
 # echo ==== Checking For Updates ====; echo;
 
