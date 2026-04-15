@@ -11,6 +11,7 @@ echo "Upgrading packages..."
 sudo apt upgrade -y
 
 # Automatically remove unused packages
+echo "Removing unused packages..."
 sudo apt autoremove -y
 
 # Update to a specific Nvidia driver tested version later:
