@@ -15,6 +15,18 @@ sudo apt autoremove -y
 echo "Cleaning package cache..."
 sudo apt autoclean -y
 
+# Update Node.js (nvm)
+if [ -d "$HOME/.nvm" ]; then
+  export NVM_DIR="$HOME/.nvm"
+
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+  echo "Updating Node.js (LTS)..."
+  nvm install --lts >/dev/null
+fi
+
+echo "=== System update completed successfully ==="
+
 # # === Discord update script ===
 # echo ==== Checking For Updates ====; echo;
 
