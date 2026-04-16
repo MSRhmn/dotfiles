@@ -88,7 +88,7 @@ if snap list firefox >/dev/null 2>&1; then
   sudo snap remove --purge firefox || true
 fi
 
-if ! apt-cache policy firefox | grep -q "packages.mozilla.org"; then
+if ! dpkg -l | grep -qw firefox; then
   echo "Installing Firefox (.deb)..."
 
   sudo mkdir -p /etc/apt/keyrings
