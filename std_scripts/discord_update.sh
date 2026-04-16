@@ -1,14 +1,14 @@
 #!/bin/bash
-set -e  # Exit immediately on error
+set -e # Exit immediately on error
 
 # === Discord update script ===
-echo ==== Checking For Updates ====; echo;
+echo ==== Checking For Updates ====
+echo
 
 # checking for discord app
-if ! command -v discord &> /dev/null
-then
-   echo Discord could not be found!
-   exit 1
+if ! command -v discord &>/dev/null; then
+  echo Discord could not be found!
+  exit 1
 fi
 
 if command -v discord >/dev/null 2>&1; then
