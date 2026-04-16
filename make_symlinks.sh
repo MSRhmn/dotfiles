@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Define dotfiles directory path
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -15,11 +17,5 @@ done
 for file in ".bashrc" ".bash_aliases" ".profile" ".gitconfig"; do
   ln -sf "${DOTFILES_DIR}/${file}" "${HOME}/${file}"
 done
-
-# Handle potential errors
-if [[ $? -ne 0 ]]; then
-  echo "❌ Error occurred during symlinking process."
-  exit 1
-fi
 
 echo "✅ Symlinks created successfully!"
