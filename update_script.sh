@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Update the package list and upgrade installed packages
 echo "=== Starting System Update ==="
 sudo apt update
