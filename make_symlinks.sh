@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define dotfiles directory path
-DOTFILES_DIR="${HOME}/dotfiles"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Create ~/bin directory if it doesn't exist
 mkdir -p "${HOME}/bin"
