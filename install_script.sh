@@ -32,6 +32,7 @@ PACKAGES=(
   htop
   ripgrep
   fd-find
+  fzf
   bat
   ncdu
 )
