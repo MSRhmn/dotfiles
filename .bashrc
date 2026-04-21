@@ -120,8 +120,14 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
 # Terminal search tool
-ff() {
-  selected=$(fd "$1" /mnt | fzf --preview 'mediainfo {}')
+fm() {
+  selected=$(
+    fd -H "$1" \
+      /mnt \
+      "$HOME" \
+      "$HOME/Dropbox" \
+      2>/dev/null | fzf --preview 'mediainfo {}'
+  )
   [ -z "$selected" ] && return
   xdg-open "$selected"
 }
