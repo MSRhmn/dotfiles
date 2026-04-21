@@ -122,10 +122,11 @@ export NVM_DIR="$HOME/.nvm"
 # Terminal search tool
 ff() {
   selected=$(
-    fd -H "$1" \
+    fd -H -i --type f "$1" \
       /mnt \
       "$HOME" \
-      2>/dev/null | fzf --preview '
+      2>/dev/null |
+      fzf --preview '
       case {} in
         *.mp4|*.mkv|*.mp3) mediainfo {} ;;
         *) file {} ;;
