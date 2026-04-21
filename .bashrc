@@ -125,7 +125,6 @@ ff() {
     fd -H "$1" \
       /mnt \
       "$HOME" \
-      "$HOME/Dropbox" \
       2>/dev/null | fzf --preview 'mediainfo {}'
   )
   [ -z "$selected" ] && return
