@@ -7,6 +7,9 @@ sudo apt update
 
 # Core packages
 PACKAGES=(
+  ca-certificates
+  gnupg
+  apt-transport-https
   curl
   vim
   shfmt
