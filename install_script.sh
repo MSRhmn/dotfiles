@@ -121,7 +121,8 @@ if ! command -v microsoft-edge >/dev/null 2>&1; then
 
   # Import Microsoft GPG key and add Edge repository
   sudo mkdir -p /etc/apt/keyrings
-  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft-edge.gpg >/dev/null
+  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc |
+    sudo gpg --dearmor -o /etc/apt/keyrings/microsoft-edge.gpg
 
   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main" |
     sudo tee /etc/apt/sources.list.d/microsoft-edge.list >/dev/null
