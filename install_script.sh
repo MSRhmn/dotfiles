@@ -6,6 +6,8 @@ echo "=== Starting System Setup ==="
 sudo apt update
 
 # Core packages
+DESKTOP_ENV=$(echo "$XDG_CURRENT_DESKTOP" | tr '[:upper:]' '[:lower:]')
+
 PACKAGES=(
   ca-certificates
   gnupg
