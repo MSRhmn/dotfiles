@@ -242,5 +242,6 @@ fi
 # Clean up unused packages
 echo "Running autoremove to clean up..."
 sudo apt autoremove -y
+sudo apt autoclean -y
 
 echo "=== Script completed successfully ==="
