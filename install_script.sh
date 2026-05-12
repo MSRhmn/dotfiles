@@ -87,7 +87,8 @@ else
   echo "Brave already installed."
 fi
 
-# === install firefox deb ===
+# === Install Firefox (.deb) ===
+
 if snap list firefox >/dev/null 2>&1; then
   sudo snap remove --purge firefox || true
 fi
@@ -95,12 +96,12 @@ fi
 if ! dpkg -l | grep -qw firefox; then
   echo "Installing Firefox (.deb)..."
 
-  sudo mkdir -p /etc/apt/keyrings
+  sudo install -d -m 0755 /etc/apt/keyrings
 
-  curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg |
-    sudo tee /etc/apt/keyrings/mozilla.asc >/dev/null
+  wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | \
+    sudo gpg --dearmor -o /etc/apt/keyrings/packages.mozilla.org.gpg
 
-  echo "deb [signed-by=/etc/apt/keyrings/mozilla.asc] https://packages.mozilla.org/apt mozilla main" |
+  echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" | \
     sudo tee /etc/apt/sources.list.d/mozilla.list >/dev/null
 
   echo '
@@ -111,6 +112,7 @@ Pin-Priority: 1000
 
   sudo apt update
   sudo apt install -y firefox
+
 else
   echo "Firefox already installed."
 fi
