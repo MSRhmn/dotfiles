@@ -187,30 +187,31 @@ else
 fi
 
 # === Install Postman ===
-echo "Checking Postman installation..."
+if ! command -v postman >/dev/null 2>&1; then
 
-if command -v postman &>/dev/null || [ -d "/opt/Postman" ]; then
-  echo "Postman is already installed. Skipping..."
-else
-  echo "Installing Postman..."
+  echo "=== Installing Postman ==="
 
   wget https://dl.pstmn.io/download/latest/linux64 -O /tmp/postman.tar.gz
 
-  sudo tar -xzf /tmp/postman.tar.gz -C /opt/
-  sudo ln -sf /opt/Postman/Postman /usr/bin/postman
+  sudo rm -rf /opt/Postman
 
-  sudo tee /usr/share/applications/postman.desktop >/dev/null <<EOL
+  sudo tar -xzf /tmp/postman.tar.gz -C /opt
+
+  sudo ln -sf /opt/Postman/Postman /usr/local/bin/postman
+
+  cat <<EOF | sudo tee /usr/share/applications/postman.desktop >/dev/null
 [Desktop Entry]
 Name=Postman
 Exec=postman
 Icon=/opt/Postman/app/resources/app/assets/icon.png
 Type=Application
 Categories=Development;
-EOL
+EOF
 
-  rm /tmp/postman.tar.gz
+  rm -f /tmp/postman.tar.gz
 
-  echo "Postman installation complete!"
+else
+  echo "Postman already installed."
 fi
 
 # === Install Spotify ===
