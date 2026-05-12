@@ -38,6 +38,8 @@ PACKAGES=(
   fzf
   bat
   ncdu
+  zip
+  unzip
 )
 
 echo "=== Installing Base Packages ==="
