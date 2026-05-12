@@ -87,7 +87,6 @@ else
 fi
 
 # === Install Firefox (.deb) ===
-
 if snap list firefox >/dev/null 2>&1; then
   sudo snap remove --purge firefox || true
 fi
