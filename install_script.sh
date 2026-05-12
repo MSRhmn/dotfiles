@@ -20,8 +20,6 @@ PACKAGES=(
   python3-venv
   tree
   dos2unix
-  gnome-tweaks
-  gnome-calendar
   usb-creator-gtk
   fonts-firacode
   fonts-lohit-beng-bengali
@@ -43,6 +41,13 @@ PACKAGES=(
   zip
   unzip
 )
+
+if [[ "$DESKTOP_ENV" == *gnome* ]]; then
+  PACKAGES+=(
+    gnome-tweaks
+    gnome-calendar
+  )
+fi
 
 echo "=== Installing Base Packages ==="
 
