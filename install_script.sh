@@ -98,10 +98,10 @@ if ! dpkg -l | grep -qw firefox; then
 
   sudo install -d -m 0755 /etc/apt/keyrings
 
-  wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | \
+  wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- |
     sudo gpg --dearmor -o /etc/apt/keyrings/packages.mozilla.org.gpg
 
-  echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" | \
+  echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" |
     sudo tee /etc/apt/sources.list.d/mozilla.list >/dev/null
 
   echo '
