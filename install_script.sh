@@ -73,13 +73,16 @@ fi
 
 # === Install Brave ===
 if ! command -v brave-browser >/dev/null 2>&1; then
-  echo "Installing Brave..."
+  echo "=== Installing Brave Browser ==="
 
-  sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg \
-    https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+  sudo mkdir -p /etc/apt/keyrings
 
-  echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg arch=amd64] \
-https://brave-browser-apt-release.s3.brave.com/ stable main" |
+  curl -fsSLo /tmp/brave.key https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+
+  sudo mv /tmp/brave.key /etc/apt/keyrings/brave-browser.gpg
+  sudo chmod 644 /etc/apt/keyrings/brave-browser.gpg
+
+  echo "deb [signed-by=/etc/apt/keyrings/brave-browser.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main" |
     sudo tee /etc/apt/sources.list.d/brave-browser-release.list >/dev/null
 
   sudo apt update
