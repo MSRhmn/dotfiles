@@ -190,6 +190,7 @@ if [ -d "$HOME/.config/nvm" ]; then
   export NVM_DIR="$HOME/.config/nvm"
 else
   export NVM_DIR="$HOME/.nvm"
+fi
 
 # shellcheck disable=SC1090
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
