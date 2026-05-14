@@ -105,6 +105,9 @@ if command -v snap >/dev/null 2>&1; then
   fi
 fi
 
+# Remove previous apt keys
+sudo rm -f /etc/apt/keyrings/packages-mozilla.org.gpg
+
 if ! dpkg -l | grep -qw firefox; then
   echo "Installing Firefox (.deb)..."
 
