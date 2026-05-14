@@ -178,7 +178,7 @@ else
 fi
 
 # === Install nvm (Node Version Manager) ===
-if [ ! -d "$HOME/.nvm" ]; then
+if [ ! -d "$HOME/.nvm" ] && [ ! -d "$HOME/.config/nvm"]; then
   echo "Installing nvm..."
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 else
@@ -186,7 +186,11 @@ else
 fi
 
 # Load nvm into current shell
-export NVM_DIR="$HOME/.nvm"
+if [ -d "$HOME/.config/nvm" ]; then
+  export NVM_DIR="$HOME/.config/nvm"
+else
+  export NVM_DIR="$HOME/.nvm"
+
 # shellcheck disable=SC1090
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
