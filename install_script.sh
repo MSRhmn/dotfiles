@@ -123,7 +123,7 @@ Pin-Priority: 1000
 ' | sudo tee /etc/apt/preferences.d/mozilla >/dev/null
 
   sudo apt update
-  sudo apt install -y firefox
+  sudo apt install -y --alow-downgrades firefox
 
 else
   echo "Firefox already installed."
