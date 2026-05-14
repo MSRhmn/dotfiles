@@ -106,7 +106,7 @@ if command -v snap >/dev/null 2>&1; then
 fi
 
 # Remove previous apt keys
-sudo rm -f /etc/apt/keyrings/packages-mozilla.org.gpg
+sudo rm -f /etc/apt/keyrings/packages.mozilla.org.gpg
 
 if ! dpkg -l | grep -qw firefox; then
   echo "Installing Firefox (.deb)..."
@@ -126,7 +126,7 @@ Pin-Priority: 1000
 ' | sudo tee /etc/apt/preferences.d/mozilla >/dev/null
 
   sudo apt update
-  sudo apt install -y --alow-downgrades firefox
+  sudo apt install -y --allow-downgrades firefox
 
 else
   echo "Firefox already installed."
