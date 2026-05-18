@@ -127,11 +127,17 @@ ff() {
       "$HOME" \
       2>/dev/null |
       fzf --preview '
+      echo "Path: {}"
+      echo
       case {} in
-        *.mp4|*.mkv|*.mp3) mediainfo {} ;;
-        *) file {} ;;
+        *.mp4|*.mkv|*.mp3)
+          mediainfo {} | grep -E "Format|Duration|File size|Resolution"
+          ;;
+        *)
+          file {}
+          ;;
       esac
-    '
+      ' --preview-window=right:60%:wrap
   )
   [ -z "$selected" ] && return
   xdg-open "$selected"
