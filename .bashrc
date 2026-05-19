@@ -145,7 +145,7 @@ ff() {
         esac
       ' \
         --preview-window=right:70%:wrap \
-        --bind 'ctrl-o:execute(xdg-open "$(echo {} | cut -f2)")'
+        --bind 'ctrl-o:become(xdg-open "$(echo {} | cut -f2)")'
   )
 
   [ -z "$selected" ] && return
