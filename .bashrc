@@ -123,13 +123,13 @@ export NVM_DIR="$HOME/.nvm"
 ff() {
   selected=$(
     fd -H -i --type f "$1" /mnt "$HOME" 2>/dev/null |
-    while read -r file; do
-      printf "%s\t%s\n" "$(basename "$file")" "$file"
-    done |
-    fzf \
-      --delimiter='\t' \
-      --with-nth=1 \
-      --preview '
+      while read -r file; do
+        printf "%s\t%s\n" "$(basename "$file")" "$file"
+      done |
+      fzf \
+        --delimiter='\t' \
+        --with-nth=1 \
+        --preview '
         file=$(echo {} | cut -f2)
 
         echo "Path: $file"
@@ -144,8 +144,8 @@ ff() {
             ;;
         esac
       ' \
-      --preview-window=right:60%:wrap \
-      --bind 'ctrl-o:execute(xdg-open "$(echo {} | cut -f2)")'
+        --preview-window=right:60%:wrap \
+        --bind 'ctrl-o:execute(xdg-open "$(echo {} | cut -f2)")'
   )
 
   [ -z "$selected" ] && return
