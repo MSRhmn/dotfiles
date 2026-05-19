@@ -122,23 +122,34 @@ export NVM_DIR="$HOME/.nvm"
 # Terminal search tool
 ff() {
   selected=$(
-    fd -H -i --type f "$1" \
-      /mnt \
-      "$HOME" \
-      2>/dev/null |
-      fzf --preview '
-      echo "Path: {}"
-      echo
-      case {} in
-        *.mp4|*.mkv|*.mp3)
-          mediainfo {} | grep -E "Format|Duration|File size|Resolution"
-          ;;
-        *)
-          file {}
-          ;;
-      esac
-      ' --preview-window=right:60%:wrap
+    fd -H -i --type f "$1" /mnt "$HOME" 2>/dev/null |
+    while read -r file; do
+      printf "%s\t%s\n" "$(basename "$file")" "$file"
+    done |
+    fzf \
+      --delimiter='\t' \
+      --with-nth=1 \
+      --preview '
+        file=$(echo {} | cut -f2)
+
+        echo "Path: $file"
+        echo
+
+        case "$file" in
+          *.mp4|*.mkv|*.mp3)
+            mediainfo "$file" | grep -E "Format|Duration|File size|Width|Height"
+            ;;
+          *)
+            file "$file"
+            ;;
+        esac
+      ' \
+      --preview-window=right:60%:wrap
   )
+
   [ -z "$selected" ] && return
-  xdg-open "$selected"
+
+  filepath=$(echo "$selected" | cut -f2)
+
+  xdg-open "$(dirname "$filepath")"
 }
