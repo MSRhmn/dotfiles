@@ -144,7 +144,7 @@ ff() {
             ;;
         esac
       ' \
-        --preview-window=right:60%:wrap \
+        --preview-window=right:70%:wrap \
         --bind 'ctrl-o:execute(xdg-open "$(echo {} | cut -f2)")'
   )
 
