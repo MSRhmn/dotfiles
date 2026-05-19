@@ -36,6 +36,7 @@ PACKAGES=(
   ripgrep
   fd-find
   fzf
+  mediainfo
   bat
   ncdu
   zip
