@@ -198,30 +198,6 @@ sudo tee /etc/apt/sources.list.d/spotify.list
 sudo apt update
 sudo apt install spotify-client
 
-# # === Install Spotify ===
-# if ! command -v spotify >/dev/null 2>&1; then
-
-#   echo "=== Installing Spotify ==="
-
-#   sudo mkdir -p /etc/apt/keyrings
-
-#   curl -fsSL https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg |
-#     gpg --dearmor |
-#     sudo tee /etc/apt/keyrings/spotify.gpg >/dev/null
-
-#   echo "deb [signed-by=/etc/apt/keyrings/spotify.gpg] https://repository.spotify.com stable non-free" |
-#     sudo tee /etc/apt/sources.list.d/spotify.list >/dev/null
-
-#   sudo apt update
-
-#   sudo apt install -y spotify-client || {
-#     echo "Spotify repo may not support Ubuntu 26.04 yet."
-#     echo "Skipping Spotify installation."
-#   }
-
-# else
-#   echo "Spotify already installed."
-# fi
 
 # Clean up unused packages
 echo "Running autoremove to clean up..."
