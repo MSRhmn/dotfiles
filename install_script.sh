@@ -188,16 +188,15 @@ else
 fi
 
 # Add Spotify signing key
-curl -sS https://download.spotify.com/debian/pubkey_5384CE82BA52C83A.asc | \
-sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+curl -sS https://download.spotify.com/debian/pubkey_5384CE82BA52C83A.asc |
+  sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
 
 # Add Spotify repository
-echo "deb https://repository.spotify.com stable non-free" | \
-sudo tee /etc/apt/sources.list.d/spotify.list
+echo "deb https://repository.spotify.com stable non-free" |
+  sudo tee /etc/apt/sources.list.d/spotify.list
 
 sudo apt update
 sudo apt install spotify-client
-
 
 # Clean up unused packages
 echo "Running autoremove to clean up..."
