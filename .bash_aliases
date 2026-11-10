@@ -32,3 +32,7 @@ fi
 
 # Shell script formatter
 alias fmtsh="shfmt -i 2 -ci -w"
+
+# G-Drive mount unmount with rclone
+alias mountdrive="rclone mount gdrive: ~/GoogleDrive --vfs-cache-mode full --dir-cache-time 24h --tpslimit 10 --daemon"
+alias unmountdrive="fusermount -u ~/GoogleDrive"
