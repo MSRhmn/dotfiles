@@ -99,39 +99,45 @@ else
   echo "Brave already installed."
 fi
 
-# === Install Firefox (.deb) ===
+
+# === Install Firefox from Mozilla APT Repository ===
+
+# Remove Firefox Snap if present
 if command -v snap >/dev/null 2>&1; then
-  if snap list firefox >/dev/null 2>&1; then
-    sudo snap remove --purge firefox || true
-  fi
+    if snap list firefox >/dev/null 2>&1; then
+        sudo snap remove --purge firefox
+    fi
 fi
 
-# Remove previous apt keys
-sudo rm -f /etc/apt/keyrings/packages.mozilla.org.gpg
+# Configure Mozilla signing key (always)
+sudo install -d -m 0755 /etc/apt/keyrings
 
-if ! dpkg -l | grep -qw firefox; then
-  echo "Installing Firefox (.deb)..."
+wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- |
+    sudo gpg --dearmor --yes -o /etc/apt/keyrings/packages.mozilla.org.gpg
 
-  sudo install -d -m 0755 /etc/apt/keyrings
+sudo chmod 644 /etc/apt/keyrings/packages.mozilla.org.gpg
 
-  wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- |
-    sudo gpg --dearmor -o /etc/apt/keyrings/packages.mozilla.org.gpg
-
-  echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" |
+# Configure Mozilla repository (always)
+echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" |
     sudo tee /etc/apt/sources.list.d/mozilla.list >/dev/null
 
-  echo '
-Package: *
+# Give Mozilla packages priority over Ubuntu packages
+cat <<EOF | sudo tee /etc/apt/preferences.d/mozilla >/dev/null
+Package: firefox*
 Pin: origin packages.mozilla.org
 Pin-Priority: 1000
-' | sudo tee /etc/apt/preferences.d/mozilla >/dev/null
+EOF
 
-  sudo apt update
-  sudo apt install -y --allow-downgrades firefox
+# Update package information
+sudo apt update
 
-else
-  echo "Firefox already installed."
-fi
+# Install Firefox from Mozilla repository
+sudo apt install -y firefox
+
+# Prevent accidental removal by autoremove
+sudo apt-mark manual firefox
+
+echo "=== Mozilla Firefox installation verified ==="
 
 # === Install nvm (Node Version Manager) ===
 if [ ! -d "$HOME/.nvm" ] && [ ! -d "$HOME/.config/nvm"]; then
