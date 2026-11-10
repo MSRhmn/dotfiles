@@ -140,7 +140,7 @@ sudo apt-mark manual firefox
 echo "=== Mozilla Firefox installation verified ==="
 
 # === Install nvm (Node Version Manager) ===
-if [ ! -d "$HOME/.nvm" ] && [ ! -d "$HOME/.config/nvm"]; then
+if [ ! -d "$HOME/.nvm" ] && [ ! -d "$HOME/.config/nvm" ]; then
   echo "Installing nvm..."
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 else
