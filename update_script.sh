@@ -8,7 +8,17 @@ sudo apt update
 # Verify Mozilla Firefox repository is configured
 echo "Checking Firefox repository..."
 
-if ! grep -q 'packages.mozilla.org' /etc/apt/sources.list.d/mozilla.list 2>/dev/null; then
+MOZILLA_SOURCE_CONFIGURED=false
+for source_file in \
+    /etc/apt/sources.list.d/mozilla.list \
+    /etc/apt/sources.list.d/mozilla.sources; do
+    if [[ -f "$source_file" ]] && grep -q 'packages.mozilla.org' "$source_file"; then
+        MOZILLA_SOURCE_CONFIGURED=true
+        break
+    fi
+done
+
+if [[ "$MOZILLA_SOURCE_CONFIGURED" != true ]]; then
     echo "ERROR: Mozilla Firefox repository is not configured."
     echo "Run the installation script to restore Firefox configuration."
     exit 1
