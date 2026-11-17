@@ -1,53 +1,66 @@
 # msrhmn's Dotfiles 🐧
 
-A Simple, and quick Linux desktop setup, just things that work.
+Personal Bash, desktop, and development setup for an Ubuntu daily driver. The
+repository includes shell configuration, setup and update scripts, and common
+tools for Python and Django development.
 
-### What this is
-My personal dotfiles for a fast, minimal, and stable Linux daily driver so that I don't have to bother for update's or a new installation.
+## Environment
 
-### Distro & Environment
-- Ubuntu 24.04 LTS (currently)
-- Default GNOME Terminal
-- Shell: Bash with a few quality of aliases
-- Editor: VS Code, vi when I'm on a server or in terminal
+- Ubuntu Desktop with Bash and GNOME
+- VS Code for development; `vi` for terminal editing
+- Python 3, `pip`, `venv`, and Black for Python projects
 
-### How to use these dotfiles
-This repo is made since **Ubuntu 20.04/22.04/24.04** and so on with default GNOME + bash. It will probably work fine on Debian/Pop!_OS/Linux Mint too.
+The scripts target Ubuntu and use APT. Review them before running, since setup
+installs packages and configures third-party repositories.
 
-#### Option 1 - Quick & safe (recommended for most people)
-Just look around and copy what you like manually.
-Most files are tiny and self-explanatory.
+## Python and Django projects
 
-#### Option 2 - Selective install
+Python and Django dependencies belong in each project's virtual environment,
+rather than being installed globally by these dotfiles. For a project that has
+a `requirements.txt` file:
+
 ```bash
-# Clone anywhere you want
-git clone https://github.com/msrhmn/dotfiles.git ~/dotfiles
-
-# Then copy only what you need, e.g.:
-cp ~/dotfiles/.bashrc ~/.bashrc
-cp ~/dotfiles/.bash_aliases ~/.bash_aliases
+cd ~/projects/my-django-project
+python3 -m venv venv
+source venv/bin/activate
+python -m pip install -r requirements.txt
+python manage.py runserver
 ```
 
-#### Git identity and signing
-The tracked `.gitconfig` contains shared preferences and loads personal settings
-from `~/.gitconfig.local`. Before making commits, create that file from the
-template and replace the example name and email with your own:
+The `p` shell alias changes to `~/projects`. Add project dependencies to that
+project's `requirements.txt` so they can be recreated on another machine.
+
+## Setup
+
+Clone the repository:
+
+```bash
+git clone https://github.com/msrhmn/dotfiles.git ~/dotfiles
+```
+
+You can copy individual configuration files, or run `make_symlinks.sh` to link
+the Bash and Git configuration files and add the setup scripts to `~/bin`.
+Back up any existing matching files in your home directory first; the script
+replaces them with symlinks.
+
+Run `install_script.sh` to install the listed desktop and development tools.
+Run `update_script.sh` for system and Node.js updates. Spotify is optional; opt
+in by running the installer with `INSTALL_SPOTIFY=1`.
+
+## Git identity and signing
+
+The tracked `.gitconfig` loads personal settings from `~/.gitconfig.local`.
+Create it from the template and replace the example name, email, and key path:
 
 ```bash
 cp ~/dotfiles/.gitconfig.local.example ~/.gitconfig.local
 ${EDITOR:-vi} ~/.gitconfig.local
 ```
 
-The local file is not tracked by this repository, so your email and signing key
-stay on your machine.
-
-Spotify installation is optional because Spotify's Linux client may not support
-every Ubuntu release. To opt in when running the installer, use
-`INSTALL_SPOTIFY=1 ./install_script.sh`.
+The local file is not tracked, keeping personal settings out of this repository.
 
 ## License
-© 2025 Md. Shamim Rahman<br>
-This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.  
-Feel free to use, fork, modify, or redistribute it however you like.
 
-Inspired by the awesome work of **@CoreyMSchafer** → [github.com/CoreyMSchafer/dotfiles](https://github.com/CoreyMSchafer/dotfiles)
+© 2025 Md. Shamim Rahman<br>
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE
+file for details. Feel free to use, fork, modify, or redistribute it.
