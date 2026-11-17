@@ -28,6 +28,19 @@ cp ~/dotfiles/.bashrc ~/.bashrc
 cp ~/dotfiles/.bash_aliases ~/.bash_aliases
 ```
 
+#### Git identity and signing
+The tracked `.gitconfig` contains shared preferences and loads personal settings
+from `~/.gitconfig.local`. Before making commits, create that file from the
+template and replace the example name and email with your own:
+
+```bash
+cp ~/dotfiles/.gitconfig.local.example ~/.gitconfig.local
+${EDITOR:-vi} ~/.gitconfig.local
+```
+
+The local file is not tracked by this repository, so your email and signing key
+stay on your machine.
+
 ## License
 © 2025 Md. Shamim Rahman<br>
 This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.  

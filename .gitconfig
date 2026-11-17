@@ -1,12 +1,8 @@
 [user]
-	name = Md. Shamim Rahman
-	email = apubdtea@gmail.com
-	signingkey = /home/msrhmn/.ssh/id_ed25519.pub
+	useConfigOnly = true
 [init]
 	defaultBranch = master
-[gpg]
-	format = ssh
-[commit]
-	gpgsign = true
 [pull]
 	rebase = false
+[include]
+	path = ~/.gitconfig.local
