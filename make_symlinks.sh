@@ -9,7 +9,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "${HOME}/bin"
 
 # Symlink scripts to user's bin directory
-for script in "install_script.sh" "update_script.sh" "suspend.sh"; do
+for script in "install_script.sh" "update_script.sh"; do
   ln -sf "${DOTFILES_DIR}/${script}" "${HOME}/bin/${script}"
 done
 
