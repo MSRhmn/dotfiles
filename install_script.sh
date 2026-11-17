@@ -181,11 +181,50 @@ if ! command -v postman >/dev/null 2>&1; then
 
   echo "=== Installing Postman ==="
 
-  wget https://dl.pstmn.io/download/latest/linux64 -O /tmp/postman.tar.gz
+  POSTMAN_TMP_DIR=$(mktemp -d)
+  if ! wget -q https://dl.pstmn.io/download/latest/linux64 -O "$POSTMAN_TMP_DIR/postman.tar.gz"; then
+    rm -rf -- "$POSTMAN_TMP_DIR"
+    echo "Postman download failed; existing installation was left untouched." >&2
+    exit 1
+  fi
 
-  sudo rm -rf /opt/Postman
+  POSTMAN_STAGE_DIR=$(sudo mktemp -d /opt/.postman-install.XXXXXX)
+  if ! sudo tar -xzf "$POSTMAN_TMP_DIR/postman.tar.gz" -C "$POSTMAN_STAGE_DIR" ||
+    ! sudo test -x "$POSTMAN_STAGE_DIR/Postman/Postman"; then
+    sudo rm -rf -- "$POSTMAN_STAGE_DIR"
+    rm -rf -- "$POSTMAN_TMP_DIR"
+    echo "Postman archive is invalid; existing installation was left untouched." >&2
+    exit 1
+  fi
 
-  sudo tar -xzf /tmp/postman.tar.gz -C /opt
+  POSTMAN_BACKUP_DIR=$(sudo mktemp -d /opt/.postman-backup.XXXXXX)
+  POSTMAN_HAD_PREVIOUS=0
+  if sudo test -e /opt/Postman; then
+    if ! sudo mv -- /opt/Postman "$POSTMAN_BACKUP_DIR/Postman"; then
+      sudo rm -rf -- "$POSTMAN_STAGE_DIR" "$POSTMAN_BACKUP_DIR"
+      rm -rf -- "$POSTMAN_TMP_DIR"
+      echo "Could not prepare the existing Postman installation; nothing was replaced." >&2
+      exit 1
+    fi
+    POSTMAN_HAD_PREVIOUS=1
+  fi
+
+  if ! sudo mv -- "$POSTMAN_STAGE_DIR/Postman" /opt/Postman; then
+    if [[ "$POSTMAN_HAD_PREVIOUS" == "1" ]] &&
+      ! sudo mv -- "$POSTMAN_BACKUP_DIR/Postman" /opt/Postman; then
+      sudo rm -rf -- "$POSTMAN_STAGE_DIR"
+      rm -rf -- "$POSTMAN_TMP_DIR"
+      echo "Postman update failed; the old installation remains at $POSTMAN_BACKUP_DIR/Postman." >&2
+      exit 1
+    fi
+    sudo rm -rf -- "$POSTMAN_STAGE_DIR" "$POSTMAN_BACKUP_DIR"
+    rm -rf -- "$POSTMAN_TMP_DIR"
+    echo "Could not install Postman; cleanup is complete." >&2
+    exit 1
+  fi
+
+  sudo rm -rf -- "$POSTMAN_STAGE_DIR" "$POSTMAN_BACKUP_DIR"
+  rm -rf -- "$POSTMAN_TMP_DIR"
 
   sudo ln -sf /opt/Postman/Postman /usr/local/bin/postman
 
@@ -197,8 +236,6 @@ Icon=/opt/Postman/app/resources/app/assets/icon.png
 Type=Application
 Categories=Development;
 EOF
-
-  rm -f /tmp/postman.tar.gz
 
 else
   echo "Postman already installed."
