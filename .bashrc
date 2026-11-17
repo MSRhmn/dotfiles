@@ -154,3 +154,8 @@ ff() {
 
   xdg-open "$(dirname "$filepath")"
 }
+
+# Display available storage across mounted filesystems
+diskspace() {
+    df -hT -x tmpfs -x devtmpfs
+}
