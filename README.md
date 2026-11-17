@@ -41,6 +41,10 @@ ${EDITOR:-vi} ~/.gitconfig.local
 The local file is not tracked by this repository, so your email and signing key
 stay on your machine.
 
+Spotify installation is optional because Spotify's Linux client may not support
+every Ubuntu release. To opt in when running the installer, use
+`INSTALL_SPOTIFY=1 ./install_script.sh`.
+
 ## License
 © 2025 Md. Shamim Rahman<br>
 This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.  

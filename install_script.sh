@@ -99,37 +99,48 @@ else
   echo "Brave already installed."
 fi
 
-
 # === Install Firefox from Mozilla APT Repository ===
 
-# Remove Firefox Snap if present
-if command -v snap >/dev/null 2>&1; then
-    if snap list firefox >/dev/null 2>&1; then
-        sudo snap remove --purge firefox
-    fi
+# Use Mozilla's current key format and configure its repository before
+# removing the Snap. Pin Ubuntu's transitional package to prevent APT from
+# reinstalling Firefox as a Snap.
+sudo install -d -m 0755 /etc/apt/keyrings
+wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- |
+  sudo tee /etc/apt/keyrings/packages.mozilla.org.asc >/dev/null
+sudo chmod 644 /etc/apt/keyrings/packages.mozilla.org.asc
+
+. /etc/os-release
+if dpkg --compare-versions "$VERSION_ID" ge 26.04; then
+  sudo rm -f /etc/apt/sources.list.d/mozilla.list
+  cat <<EOF | sudo tee /etc/apt/sources.list.d/mozilla.sources >/dev/null
+Types: deb
+URIs: https://packages.mozilla.org/apt
+Suites: mozilla
+Components: main
+Signed-By: /etc/apt/keyrings/packages.mozilla.org.asc
+EOF
+else
+  sudo rm -f /etc/apt/sources.list.d/mozilla.sources
+  echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" |
+    sudo tee /etc/apt/sources.list.d/mozilla.list >/dev/null
 fi
 
-# Configure Mozilla signing key (always)
-sudo install -d -m 0755 /etc/apt/keyrings
-
-wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- |
-    sudo gpg --dearmor --yes -o /etc/apt/keyrings/packages.mozilla.org.gpg
-
-sudo chmod 644 /etc/apt/keyrings/packages.mozilla.org.gpg
-
-# Configure Mozilla repository (always)
-echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main" |
-    sudo tee /etc/apt/sources.list.d/mozilla.list >/dev/null
-
-# Give Mozilla packages priority over Ubuntu packages
 cat <<EOF | sudo tee /etc/apt/preferences.d/mozilla >/dev/null
-Package: firefox*
+Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1000
+
+Package: firefox
+Pin: release o=Ubuntu
+Pin-Priority: -1
 EOF
 
-# Update package information
 sudo apt update
+
+# Remove Firefox Snap only after the APT pin and Mozilla package are available.
+if command -v snap >/dev/null 2>&1 && snap list firefox >/dev/null 2>&1; then
+  sudo snap remove --purge firefox
+fi
 
 # Install Firefox from Mozilla repository
 sudo apt install -y firefox
@@ -193,16 +204,29 @@ else
   echo "Postman already installed."
 fi
 
-# Add Spotify signing key
-curl -sS https://download.spotify.com/debian/pubkey_5384CE82BA52C83A.asc |
-  sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+# Spotify's Linux client is optional and may not support every Ubuntu release.
+# Opt in explicitly with INSTALL_SPOTIFY=1 when running this script.
+if [[ "${INSTALL_SPOTIFY:-0}" == "1" ]]; then
+  if dpkg-query -W -f='${Status}' spotify-client 2>/dev/null | grep -q 'install ok installed'; then
+    echo "Spotify is already installed."
+  else
+    echo "=== Installing Spotify (optional) ==="
+    sudo install -d -m 0755 /etc/apt/keyrings
+    curl -fsSL https://download.spotify.com/debian/pubkey_5384CE82BA52C83A.asc |
+      sudo gpg --dearmor --yes -o /etc/apt/keyrings/spotify.gpg
+    sudo chmod 644 /etc/apt/keyrings/spotify.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/spotify.gpg] https://repository.spotify.com stable non-free" |
+      sudo tee /etc/apt/sources.list.d/spotify.list >/dev/null
 
-# Add Spotify repository
-echo "deb https://repository.spotify.com stable non-free" |
-  sudo tee /etc/apt/sources.list.d/spotify.list
-
-sudo apt update
-sudo apt install spotify-client
+    if sudo apt update && sudo apt install -y spotify-client; then
+      echo "Spotify installed."
+    else
+      echo "Spotify could not be installed for this Ubuntu release; continuing setup."
+    fi
+  fi
+else
+  echo "Skipping optional Spotify installation. Set INSTALL_SPOTIFY=1 to opt in."
+fi
 
 # Clean up unused packages
 echo "Running autoremove to clean up..."
