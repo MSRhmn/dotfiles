@@ -40,8 +40,9 @@ git clone https://github.com/msrhmn/dotfiles.git ~/dotfiles
 
 You can copy individual configuration files, or run `make_symlinks.sh` to link
 the Bash and Git configuration files and add the setup scripts to `~/bin`.
-Back up any existing matching files in your home directory first; the script
-replaces them with symlinks.
+If a destination already exists, the script moves it into a timestamped folder
+under `~/.dotfiles-backup/` before creating the symlink. Correct existing links
+are left in place.
 
 Run `install_script.sh` to install the listed desktop and development tools.
 Run `update_script.sh` for system and Node.js updates. Spotify is optional; opt
