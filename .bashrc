@@ -121,38 +121,82 @@ export NVM_DIR="$HOME/.nvm"
 
 # Terminal search tool
 ff() {
-  selected=$(
-    fd -H -i --type f "$1" /mnt "$HOME" 2>/dev/null |
-      while read -r file; do
-        printf "%s\t%s\n" "$(basename "$file")" "$file"
-      done |
+  local query="${1:-}"
+  local fd_cmd match selected status
+  local -a search_paths=("$HOME")
+
+  if [[ -z "$query" ]]; then
+    echo "Usage: ff <search term>" >&2
+    return 2
+  fi
+
+  if fd_cmd="$(type -P fd)"; then
+    :
+  elif fd_cmd="$(type -P fdfind)"; then
+    :
+  else
+    echo "ff: install fd-find to search for files." >&2
+    return 127
+  fi
+
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "ff: install fzf to choose a file." >&2
+    return 127
+  fi
+
+  if [[ -d /mnt ]]; then
+    search_paths+=(/mnt)
+  fi
+
+  if ! match=$("$fd_cmd" -H -i --type f --max-results 1 -- "$query" "${search_paths[@]}" 2>/dev/null); then
+    echo "ff: file search failed." >&2
+    return 1
+  fi
+  if [[ -z "$match" ]]; then
+    echo "ff: no files matched '$query'." >&2
+    return 1
+  fi
+
+  if selected=$(
+    "$fd_cmd" -H -i --type f -- "$query" "${search_paths[@]}" 2>/dev/null |
       fzf \
-        --delimiter='\t' \
-        --with-nth=1 \
+        --delimiter=/ \
+        --with-nth=-1 \
         --preview '
-        file=$(echo {} | cut -f2)
-
-        echo "Path: $file"
-        echo
-
-        case "$file" in
-          *.mp4|*.mkv|*.mp3)
-            mediainfo "$file" | grep -E "Format|Duration|File size|Width|Height"
-            ;;
-          *)
-            file "$file"
-            ;;
-        esac
-      ' \
+          case {} in
+            *.mp4|*.mkv|*.mp3)
+              if command -v mediainfo >/dev/null 2>&1; then
+                mediainfo -- {} | grep -E "Format|Duration|File size|Width|Height"
+              else
+                echo "Install mediainfo to preview media details."
+              fi
+              ;;
+            *)
+              file -- {}
+              ;;
+          esac
+        ' \
         --preview-window=right:70%:wrap \
-        --bind 'ctrl-o:become(xdg-open "$(echo {} | cut -f2)")'
-  )
+        --bind 'ctrl-o:execute(xdg-open {})'
+  ); then
+    :
+  else
+    status=$?
+    if [[ "$status" == 1 ]]; then
+      echo "ff: no file selected." >&2
+      return 1
+    fi
+    return "$status"
+  fi
 
-  [ -z "$selected" ] && return
+  [[ -n "$selected" ]] || return 0
 
-  filepath=$(echo "$selected" | cut -f2)
+  if ! command -v xdg-open >/dev/null 2>&1; then
+    echo "ff: xdg-open is unavailable." >&2
+    return 127
+  fi
 
-  xdg-open "$(dirname "$filepath")"
+  xdg-open "$(dirname -- "$selected")"
 }
 
 # Display available storage across mounted filesystems
