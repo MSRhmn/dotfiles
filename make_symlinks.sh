@@ -6,6 +6,7 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_ROOT="${HOME}/.dotfiles-backup"
 BACKUP_DIR=""
+mkdir -p "$BACKUP_ROOT"
 
 link_file() {
   local source="$1"
