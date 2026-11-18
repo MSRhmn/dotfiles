@@ -1,1 +1,6 @@
 dark.qbtheme
+
+# Vim swap and backup files
+*.swp
+*.swo
+*~
