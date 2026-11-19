@@ -13,6 +13,7 @@ PACKAGES=(
   gnupg
   apt-transport-https
   curl
+  git
   vim
   shfmt
   black
@@ -34,6 +35,7 @@ PACKAGES=(
   tmux
   htop
   ripgrep
+  rclone
   fd-find
   fzf
   mediainfo
