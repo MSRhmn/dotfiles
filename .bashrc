@@ -160,9 +160,8 @@ ff() {
   if selected=$(
     "$fd_cmd" -H -i --type f -- "$query" "${search_paths[@]}" 2>/dev/null |
       fzf \
-        --delimiter=/ \
-        --with-nth=-1 \
         --preview '
+          printf "Path: %s\\n\\n" {}
           case {} in
             *.mp4|*.mkv|*.mp3)
               if command -v mediainfo >/dev/null 2>&1; then
