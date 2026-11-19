@@ -364,6 +364,87 @@ if ! dpkg -s veracrypt >/dev/null 2>&1; then
   fi
 fi
 
+# === Install ArtCraft Launcher ===
+if ! dpkg -s artcraft-launcher >/dev/null 2>&1; then
+  case "$(dpkg --print-architecture)" in
+    amd64) ARTCRAFT_ARCH=x86_64 ;;
+    arm64) ARTCRAFT_ARCH=aarch64 ;;
+    *) ARTCRAFT_ARCH="" ;;
+  esac
+
+  if [[ -n "$ARTCRAFT_ARCH" ]]; then
+    echo "=== Installing ArtCraft Launcher ==="
+    ARTCRAFT_RELEASE_INFO=$(
+      curl -fsSL https://api.github.com/repos/storytold/craft-launcher/releases/latest |
+        python3 -c 'import json, sys; suffix="-linux-" + sys.argv[1] + ".deb"; asset=next(asset for asset in json.load(sys.stdin)["assets"] if asset["name"].startswith("artcraft-launcher-") and asset["name"].endswith(suffix)); print(asset["browser_download_url"], asset.get("digest", "").removeprefix("sha256:"), sep="\t")' "$ARTCRAFT_ARCH"
+    )
+    IFS=$'\t' read -r ARTCRAFT_DEB_URL ARTCRAFT_SHA256 <<< "$ARTCRAFT_RELEASE_INFO"
+    ARTCRAFT_TMP_DIR=$(mktemp -d)
+    if ! curl -fsSL "$ARTCRAFT_DEB_URL" -o "$ARTCRAFT_TMP_DIR/artcraft-launcher.deb" ||
+      [[ ! "$ARTCRAFT_SHA256" =~ ^[[:xdigit:]]{64}$ ]] ||
+      [[ "$(sha256sum "$ARTCRAFT_TMP_DIR/artcraft-launcher.deb" | awk '{print $1}')" != "$ARTCRAFT_SHA256" ]] ||
+      [[ "$(dpkg-deb -f "$ARTCRAFT_TMP_DIR/artcraft-launcher.deb" Package 2>/dev/null)" != "artcraft-launcher" ]]; then
+      rm -rf -- "$ARTCRAFT_TMP_DIR"
+      echo "ArtCraft Launcher download was invalid; installation stopped." >&2
+      exit 1
+    fi
+    sudo apt install -y "$ARTCRAFT_TMP_DIR/artcraft-launcher.deb"
+    rm -rf -- "$ARTCRAFT_TMP_DIR"
+  else
+    echo "Skipping ArtCraft Launcher: no official .deb is available for this architecture."
+  fi
+fi
+
+# === Install ChatGPT ===
+if ! dpkg -s chatgpt >/dev/null 2>&1; then
+  case "$(dpkg --print-architecture)" in
+    amd64) CHATGPT_ARCH=amd64 ;;
+    arm64) CHATGPT_ARCH=arm64 ;;
+    *) CHATGPT_ARCH="" ;;
+  esac
+
+  if [[ "$ID" == "ubuntu" && ( "$VERSION_ID" == "24.04" || "$VERSION_ID" == "26.04" ) && -n "$CHATGPT_ARCH" ]]; then
+    echo "=== Installing ChatGPT ==="
+    CHATGPT_TMP_DIR=$(mktemp -d)
+    if ! curl -fsSL "https://persistent.oaistatic.com/codex-app-prod/linux/deb/latest/chatgpt_${CHATGPT_ARCH}.deb" \
+      -o "$CHATGPT_TMP_DIR/chatgpt.deb" ||
+      [[ "$(dpkg-deb -f "$CHATGPT_TMP_DIR/chatgpt.deb" Package 2>/dev/null)" != "chatgpt" ]]; then
+      rm -rf -- "$CHATGPT_TMP_DIR"
+      echo "ChatGPT package download was invalid; installation stopped." >&2
+      exit 1
+    fi
+    sudo apt install -y "$CHATGPT_TMP_DIR/chatgpt.deb"
+    rm -rf -- "$CHATGPT_TMP_DIR"
+    sudo apt update
+  else
+    echo "Skipping ChatGPT: the official package supports Ubuntu 24.04/26.04 on amd64 and arm64."
+  fi
+fi
+
+# === Install Proton VPN ===
+if ! dpkg -s proton-vpn-gnome-desktop >/dev/null 2>&1; then
+  if [[ "$ID" == "ubuntu" && "$DESKTOP_ENV" == *gnome* ]]; then
+    echo "=== Installing Proton VPN ==="
+    PROTONVPN_TMP_DIR=$(mktemp -d)
+    PROTONVPN_RELEASE_PACKAGE="$PROTONVPN_TMP_DIR/protonvpn-stable-release_1.0.10_all.deb"
+    if ! curl -fsSL "https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.10_all.deb" \
+      -o "$PROTONVPN_RELEASE_PACKAGE" ||
+      ! printf '%s  %s\n' "c8a9fffb4ebdd63db08ce7f11c9b0ac394064ae6a210feb9ab63a0f7d8d060a7" "$PROTONVPN_RELEASE_PACKAGE" |
+        sha256sum --check --status ||
+      [[ "$(dpkg-deb -f "$PROTONVPN_RELEASE_PACKAGE" Package 2>/dev/null)" != "protonvpn-stable-release" ]]; then
+      rm -rf -- "$PROTONVPN_TMP_DIR"
+      echo "Proton VPN repository package failed validation; installation stopped." >&2
+      exit 1
+    fi
+    sudo apt install -y "$PROTONVPN_RELEASE_PACKAGE"
+    rm -rf -- "$PROTONVPN_TMP_DIR"
+    sudo apt update
+    sudo apt install -y proton-vpn-gnome-desktop
+  else
+    echo "Skipping Proton VPN: the native GUI app is supported on Ubuntu GNOME."
+  fi
+fi
+
 # Spotify's Linux client is optional and may not support every Ubuntu release.
 # Opt in explicitly with INSTALL_SPOTIFY=1 when running this script.
 if [[ "${INSTALL_SPOTIFY:-0}" == "1" ]]; then
