@@ -4,6 +4,7 @@ set -euo pipefail
 
 echo "=== Starting System Setup ==="
 sudo apt update
+. /etc/os-release
 
 # Core packages
 DESKTOP_ENV=$(echo "${XDG_CURRENT_DESKTOP:-}" | tr '[:upper:]' '[:lower:]')
@@ -43,6 +44,8 @@ PACKAGES=(
   ncdu
   zip
   unzip
+  gnome-system-monitor
+  gparted
 )
 
 if [[ "$DESKTOP_ENV" == *gnome* ]]; then
@@ -62,6 +65,59 @@ for pkg in "${PACKAGES[@]}"; do
     sudo apt install -y "$pkg"
   fi
 done
+
+# === Install OBS Studio ===
+# OBS publishes an official PPA for Ubuntu 26.04 and newer. Older supported
+# Ubuntu releases use the package from their own archive.
+if dpkg --compare-versions "$VERSION_ID" ge 26.04; then
+  sudo apt install -y software-properties-common
+  if ! grep -Rqs 'ppa.launchpadcontent.net/obsproject/obs-studio' /etc/apt/sources.list.d; then
+    sudo add-apt-repository -y ppa:obsproject/obs-studio
+    sudo apt update
+  fi
+fi
+sudo apt install -y obs-studio
+
+# === Install Dropbox ===
+if ! dpkg -s dropbox >/dev/null 2>&1; then
+  if [[ "$(dpkg --print-architecture)" == "amd64" ]]; then
+    sudo install -d -m 0755 /etc/apt/keyrings
+    curl -fsSL https://linux.dropbox.com/fedora/rpm-public-key.asc |
+      sudo tee /etc/apt/keyrings/dropbox.asc >/dev/null
+    sudo chmod 644 /etc/apt/keyrings/dropbox.asc
+
+    if ! grep -Rqs 'linux.dropbox.com/ubuntu' /etc/apt/sources.list.d; then
+      echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/dropbox.asc] https://linux.dropbox.com/ubuntu ${VERSION_CODENAME} main" |
+        sudo tee /etc/apt/sources.list.d/dropbox.list >/dev/null
+    fi
+
+    sudo apt update
+    sudo apt install -y dropbox
+  else
+    echo "Skipping Dropbox: the packaged desktop app is available for amd64 only."
+  fi
+fi
+
+# === Install Syncthing ===
+if ! dpkg -s syncthing >/dev/null 2>&1; then
+  sudo install -d -m 0755 /etc/apt/keyrings
+  curl -fsSL https://syncthing.net/release-key.gpg |
+    sudo tee /etc/apt/keyrings/syncthing-archive-keyring.gpg >/dev/null
+  sudo chmod 644 /etc/apt/keyrings/syncthing-archive-keyring.gpg
+
+  if ! grep -Rqs 'apt.syncthing.net' /etc/apt/sources.list.d; then
+    cat <<EOF | sudo tee /etc/apt/sources.list.d/syncthing.sources >/dev/null
+Types: deb
+URIs: https://apt.syncthing.net/
+Suites: syncthing
+Components: stable-v2
+Signed-By: /etc/apt/keyrings/syncthing-archive-keyring.gpg
+EOF
+  fi
+
+  sudo apt update
+  sudo apt install -y syncthing
+fi
 
 # === Install Visual Studio Code ===
 if ! command -v code >/dev/null 2>&1; then
@@ -111,7 +167,6 @@ wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- |
   sudo tee /etc/apt/keyrings/packages.mozilla.org.asc >/dev/null
 sudo chmod 644 /etc/apt/keyrings/packages.mozilla.org.asc
 
-. /etc/os-release
 if dpkg --compare-versions "$VERSION_ID" ge 26.04; then
   sudo rm -f /etc/apt/sources.list.d/mozilla.list
   cat <<EOF | sudo tee /etc/apt/sources.list.d/mozilla.sources >/dev/null
@@ -237,6 +292,76 @@ EOF
 
 else
   echo "Postman already installed."
+fi
+
+# === Install Obsidian ===
+if ! dpkg -s obsidian >/dev/null 2>&1; then
+  if [[ "$(dpkg --print-architecture)" == "amd64" ]]; then
+    echo "=== Installing Obsidian ==="
+    OBSIDIAN_RELEASE_INFO=$(
+      curl -fsSL https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest |
+        python3 -c 'import json, sys; asset=next(asset for asset in json.load(sys.stdin)["assets"] if asset["name"].startswith("obsidian_") and asset["name"].endswith("_amd64.deb")); print(asset["browser_download_url"], asset.get("digest", "").removeprefix("sha256:"), sep="\t")'
+    )
+    IFS=$'\t' read -r OBSIDIAN_DEB_URL OBSIDIAN_SHA256 <<< "$OBSIDIAN_RELEASE_INFO"
+    OBSIDIAN_TMP_DIR=$(mktemp -d)
+    if ! curl -fsSL "$OBSIDIAN_DEB_URL" -o "$OBSIDIAN_TMP_DIR/obsidian.deb" ||
+      [[ ! "$OBSIDIAN_SHA256" =~ ^[[:xdigit:]]{64}$ ]] ||
+      [[ "$(sha256sum "$OBSIDIAN_TMP_DIR/obsidian.deb" | awk '{print $1}')" != "$OBSIDIAN_SHA256" ]] ||
+      [[ "$(dpkg-deb -f "$OBSIDIAN_TMP_DIR/obsidian.deb" Package 2>/dev/null)" != "obsidian" ]]; then
+      rm -rf -- "$OBSIDIAN_TMP_DIR"
+      echo "Obsidian download was invalid; installation stopped." >&2
+      exit 1
+    fi
+    sudo apt install -y "$OBSIDIAN_TMP_DIR/obsidian.deb"
+    rm -rf -- "$OBSIDIAN_TMP_DIR"
+  else
+    echo "Skipping Obsidian: this installer currently supports its amd64 .deb only."
+  fi
+fi
+
+# === Install VeraCrypt ===
+if ! dpkg -s veracrypt >/dev/null 2>&1; then
+  if [[ "$(dpkg --print-architecture)" == "amd64" ]]; then
+    VERACRYPT_DEB_URL=$(
+      curl -fsSL https://veracrypt.io/en/Downloads.html |
+        python3 -c 'import re, sys; page=sys.stdin.read(); version=re.escape(sys.argv[1]); match=re.search(r"https://github[.]com/veracrypt/VeraCrypt/releases/download/[^/]+/veracrypt-[^/]+-Ubuntu-" + version + r"-amd64[.]deb", page); print(match.group(0) if match else "")' "$VERSION_ID"
+    )
+
+    if [[ -n "$VERACRYPT_DEB_URL" ]]; then
+      echo "=== Installing VeraCrypt ==="
+      VERACRYPT_TMP_DIR=$(mktemp -d)
+      export GNUPGHOME="$VERACRYPT_TMP_DIR/gnupg"
+      mkdir -m 0700 "$GNUPGHOME"
+
+      if ! curl -fsSL "$VERACRYPT_DEB_URL" -o "$VERACRYPT_TMP_DIR/veracrypt.deb" ||
+        ! curl -fsSL "${VERACRYPT_DEB_URL}.sig" -o "$VERACRYPT_TMP_DIR/veracrypt.deb.sig" ||
+        ! curl -fsSL https://amcrypto.jp/VeraCrypt/VeraCrypt_PGP_public_key.asc |
+          gpg --batch --import; then
+        rm -rf -- "$VERACRYPT_TMP_DIR"
+        unset GNUPGHOME
+        echo "Could not download VeraCrypt and its signing key." >&2
+        exit 1
+      fi
+
+      VERACRYPT_FINGERPRINT=$(gpg --batch --with-colons --fingerprint | awk -F: '$1 == "fpr" {print $10; exit}')
+      if [[ "$VERACRYPT_FINGERPRINT" != "5069A233D55A0EEB174A5FC3821ACD02680D16DE" ]] ||
+        ! gpg --batch --verify "$VERACRYPT_TMP_DIR/veracrypt.deb.sig" "$VERACRYPT_TMP_DIR/veracrypt.deb" ||
+        [[ "$(dpkg-deb -f "$VERACRYPT_TMP_DIR/veracrypt.deb" Package 2>/dev/null)" != "veracrypt" ]]; then
+        rm -rf -- "$VERACRYPT_TMP_DIR"
+        unset GNUPGHOME
+        echo "VeraCrypt package signature or package metadata was invalid." >&2
+        exit 1
+      fi
+
+      sudo apt install -y "$VERACRYPT_TMP_DIR/veracrypt.deb"
+      rm -rf -- "$VERACRYPT_TMP_DIR"
+      unset GNUPGHOME
+    else
+      echo "Skipping VeraCrypt: no official amd64 package is listed for Ubuntu $VERSION_ID."
+    fi
+  else
+    echo "Skipping VeraCrypt: this installer currently supports its amd64 .deb only."
+  fi
 fi
 
 # Spotify's Linux client is optional and may not support every Ubuntu release.
